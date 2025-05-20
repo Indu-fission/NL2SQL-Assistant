@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { FiLoader } from 'react-icons/fi';
 import TabsContent from './TabsContent';
+import QueryResults from './QueryResults';
+import VisualizationPanel from './VisualizationPanel'; // ✅ Import added
 
-// Move tabsData here so MainContent and TabsContent both can use it
 const tabsData = [
   { name: 'Schema Loader', time: 0.0 },
   { name: 'Selector Agent', time: 1.85 },
@@ -17,23 +18,35 @@ const MainContent = ({ query, setQuery, onSubmit, onClear }) => {
   const [loadedTabs, setLoadedTabs] = useState([]);
   const [activeTab, setActiveTab] = useState('');
   const [currentStep, setCurrentStep] = useState('');
+  const [queryResult, setQueryResult] = useState([]); // ✅ Add query result state
 
   const handleProcess = async () => {
     setIsLoading(true);
     setLoadedTabs([]);
     setActiveTab('');
     setCurrentStep('');
+    setQueryResult([]); // Clear previous result
 
     for (let i = 0; i < tabsData.length; i++) {
       const { name, time } = tabsData[i];
       setCurrentStep(name);
       await new Promise((resolve) => setTimeout(resolve, time * 1000));
       setLoadedTabs((prev) => [...prev, name]);
-      if (i === 0) setActiveTab(name); // First tab is default
+      if (i === 0) setActiveTab(name); // Set first tab active
     }
 
     setCurrentStep('');
-    await onSubmit?.(); // Optional callback
+    
+    // ✅ Simulate query result
+    const mockResult = [
+      { year: '2018', gdp: 2400 },
+      { year: '2019', gdp: 2500 },
+      { year: '2020', gdp: 2200 },
+      { year: '2021', gdp: 2700 },
+    ];
+    setQueryResult(mockResult);
+
+    await onSubmit?.();
     setIsLoading(false);
   };
 
@@ -113,6 +126,14 @@ const MainContent = ({ query, setQuery, onSubmit, onClear }) => {
           </div>
 
           <TabsContent activeTab={activeTab} />
+          <QueryResults rows={10} columns={10} />
+
+          {/* ✅ Visualization Panel - shown if queryResult exists */}
+          {queryResult.length > 0 && (
+            <div className="mt-8">
+              <VisualizationPanel data={queryResult} />
+            </div>
+          )}
         </div>
       )}
     </div>

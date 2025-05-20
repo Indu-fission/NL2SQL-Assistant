@@ -43,12 +43,12 @@ function App() {
             onClear={handleClearResults}
             isSidebarOpen={sidebarOpen}
           />
-          <VisualizationPanel
+          {/* <VisualizationPanel
             data={resultData}
             type={visualizationType}
             setType={setVisualizationType}
-          />
-          <ResultTable data={resultData} />
+          /> */}
+          {/* <ResultTable data={resultData} /> */}
         </main>
       </div>
     </div>

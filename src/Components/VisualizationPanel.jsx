@@ -1,66 +1,57 @@
-import React from 'react';
-import { Bar, Line, Pie } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  PointElement,
-  ArcElement,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+import React, { useState } from 'react';
+import LineChartComponent from './Charts/LineChart';
+import BarChartComponent from './Charts/BarChart';
+import PieChartComponent from './Charts/PieChart';
+import ResultTable from './Charts/ResultTable';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  PointElement,
-  ArcElement,
-  Tooltip,
-  Legend
-);
+const VisualizationPanel = ({ data, chartType }) => {
+  const [xKey, setXKey] = useState('');
+  const [yKey, setYKey] = useState('');
 
-const VisualizationPanel = ({ data, type, setType }) => {
-  const numericKeys = data.length ? Object.keys(data[0]).filter(k => typeof data[0][k] === 'number') : [];
-  const categoricalKeys = data.length ? Object.keys(data[0]).filter(k => typeof data[0][k] === 'string') : [];
+  const keys = data && data.length > 0 ? Object.keys(data[0]) : [];
 
-  const generateChartData = () => {
-    if (!data.length || !numericKeys.length) return null;
-    return {
-      labels: data.map(row => row[categoricalKeys[0]]),
-      datasets: [
-        {
-          label: numericKeys[0],
-          data: data.map(row => row[numericKeys[0]]),
-          backgroundColor: 'rgba(59, 130, 246, 0.5)',
-        },
-      ],
-    };
-  };
-
-  const chartData = generateChartData();
+  const showAxisSelectors = chartType !== 'table' && keys.length > 0;
 
   return (
-    <div className="my-4">
-      <div className="mb-2">
-        <label className="font-semibold mr-2">Visualization Type:</label>
-        <select
-          className="p-2 border rounded"
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-        >
-          <option value="Table">Table</option>
-          <option value="Bar Chart">Bar Chart</option>
-          <option value="Line Chart">Line Chart</option>
-          <option value="Pie Chart">Pie Chart</option>
-        </select>
+    <div className="space-y-4">
+      {showAxisSelectors && (
+        <>
+          <div>
+            <label className="font-semibold text-sm mb-1 block">Select X-axis (categorical):</label>
+            <select
+              value={xKey}
+              onChange={(e) => setXKey(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded"
+            >
+              <option value="">Select X-axis</option>
+              {keys.map((key) => (
+                <option key={key} value={key}>{key}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="font-semibold text-sm mb-1 block">Select Y-axis (numeric):</label>
+            <select
+              value={yKey}
+              onChange={(e) => setYKey(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded"
+            >
+              <option value="">Select Y-axis</option>
+              {keys.map((key) => (
+                <option key={key} value={key}>{key}</option>
+              ))}
+            </select>
+          </div>
+        </>
+      )}
+
+      <div className="rounded p-2">
+        {chartType === 'line' && xKey && yKey && <LineChartComponent data={data} xKey={xKey} yKey={yKey} />}
+        {chartType === 'bar' && xKey && yKey && <BarChartComponent data={data} xKey={xKey} yKey={yKey} />}
+        {chartType === 'pie' && xKey && yKey && <PieChartComponent data={data} xKey={xKey} yKey={yKey} />}
+        {chartType === 'table' && <ResultTable data={data} />}
       </div>
-      {type === 'Bar Chart' && chartData && <Bar data={chartData} />}
-      {type === 'Line Chart' && chartData && <Line data={chartData} />} 
-      {type === 'Pie Chart' && chartData && <Pie data={chartData} />}
     </div>
   );
 };
