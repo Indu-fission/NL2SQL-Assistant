@@ -1,24 +1,37 @@
 import React from 'react';
-import { Line } from 'react-chartjs-2';
+import {
+  LineChart as LineChartLib,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
 
-const LineChart = ({ data, xKey, yKey }) => {
-  if (!xKey || !yKey) return <div>Please select both X and Y axes.</div>;
+const LineChartComponent = ({ data, xKey, yKey }) => {
+  const xkey = xKey || 'gdp';
+  const ykey = yKey || 'year';
 
-  const chartData = {
-    labels: data.map(row => row[xKey]),
-    datasets: [
-      {
-        label: `${yKey} by ${xKey}`,
-        data: data.map(row => row[yKey]),
-        borderColor: 'rgb(75, 192, 192)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        fill: true,
-        tension: 0.3,
-      },
-    ],
-  };
-
-  return <Line data={chartData} />;
+  return (
+    <ResponsiveContainer width="100%" height={300}>
+      <LineChartLib
+        width={500}
+        height={300}
+        data={data}
+        margin={{ top: 20, right: 50, left: 20, bottom: 5 }}
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey={xkey} />
+        <YAxis  />
+        <Tooltip />
+        <Legend />
+        <Line type="monotone" dataKey={xkey} strokeWidth={3} stroke="#8884d8" />
+        <Line type="monotone" dataKey={ykey}  strokeWidth={3} stroke="#8884d8" />
+      </LineChartLib>
+    </ResponsiveContainer>
+  );
 };
 
-export default LineChart;
+export default LineChartComponent;

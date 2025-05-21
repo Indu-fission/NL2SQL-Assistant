@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import VisualizationPanel from './VisualizationPanel';
 
 const QueryResults = ({ rows = 10, columns = 10, data }) => {
-  const [selectedViz, setSelectedViz] = useState('table'); // default to table
+  const [selectedViz, setSelectedViz] = useState('table');
 
   const visualizationTypes = [
     { label: 'Table', value: 'table' },
     { label: 'Bar Chart', value: 'bar' },
     { label: 'Line Chart', value: 'line' },
-    { label: 'Pie Chart', value: 'pie' }
+    { label: 'Pie Chart', value: 'pie' },
+    { label: 'Scatter Plot', value: 'scatterPlot' },
+    { label: 'Heat Map', value: 'heatMap' },
   ];
 
   return (
@@ -27,7 +29,7 @@ const QueryResults = ({ rows = 10, columns = 10, data }) => {
         </div>
 
         <div className="flex-1">
-        <p className="font-bold">Visualization</p>
+          <p className="font-bold">Visualization</p>
           <select
             value={selectedViz}
             onChange={(e) => setSelectedViz(e.target.value)}
@@ -40,7 +42,11 @@ const QueryResults = ({ rows = 10, columns = 10, data }) => {
         </div>
       </div>
 
-      <VisualizationPanel data={data} chartType={selectedViz} />
+      {data && data.length > 0 ? (
+        <VisualizationPanel data={data} chartType={selectedViz} />
+      ) : (
+        <p className="text-gray-500 italic mt-2">No data available. Please process a query first.</p>
+      )}
     </div>
   );
 };

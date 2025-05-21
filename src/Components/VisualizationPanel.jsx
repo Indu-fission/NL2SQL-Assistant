@@ -3,13 +3,14 @@ import LineChartComponent from './Charts/LineChart';
 import BarChartComponent from './Charts/BarChart';
 import PieChartComponent from './Charts/PieChart';
 import ResultTable from './Charts/ResultTable';
+import ScatterPlot from './Charts/ScatterPlot';
+import HeatMap from './Charts/HeatMap';
 
 const VisualizationPanel = ({ data, chartType }) => {
   const [xKey, setXKey] = useState('');
   const [yKey, setYKey] = useState('');
 
-  const keys = data && data.length > 0 ? Object.keys(data[0]) : [];
-
+  const keys = data?.length > 0 ? Object.keys(data[0]) : [];
   const showAxisSelectors = chartType !== 'table' && keys.length > 0;
 
   return (
@@ -47,9 +48,11 @@ const VisualizationPanel = ({ data, chartType }) => {
       )}
 
       <div className="rounded p-2">
-        {chartType === 'line' && xKey && yKey && <LineChartComponent data={data} xKey={xKey} yKey={yKey} />}
-        {chartType === 'bar' && xKey && yKey && <BarChartComponent data={data} xKey={xKey} yKey={yKey} />}
-        {chartType === 'pie' && xKey && yKey && <PieChartComponent data={data} xKey={xKey} yKey={yKey} />}
+        {chartType === 'line' && <LineChartComponent data={data} xKey={xKey} yKey={yKey} />}
+        {chartType === 'bar' && <BarChartComponent data={data} xKey={xKey} yKey={yKey} />}
+        {chartType === 'pie' && <PieChartComponent data={data} xKey={xKey} yKey={yKey} />}
+        {chartType === 'scatterPlot'  && <ScatterPlot data={data} xKey={xKey} yKey={yKey} />}
+        {chartType === 'heatMap' && <HeatMap data={data} xKey={xKey} yKey={yKey} />}
         {chartType === 'table' && <ResultTable data={data} />}
       </div>
     </div>

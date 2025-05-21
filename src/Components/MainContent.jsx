@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FiLoader } from 'react-icons/fi';
 import TabsContent from './TabsContent';
 import QueryResults from './QueryResults';
-import VisualizationPanel from './VisualizationPanel'; // ✅ Import added
+import ExportResults from './ExportResults';
 
 const tabsData = [
   { name: 'Schema Loader', time: 0.0 },
@@ -18,31 +18,35 @@ const MainContent = ({ query, setQuery, onSubmit, onClear }) => {
   const [loadedTabs, setLoadedTabs] = useState([]);
   const [activeTab, setActiveTab] = useState('');
   const [currentStep, setCurrentStep] = useState('');
-  const [queryResult, setQueryResult] = useState([]); // ✅ Add query result state
+  const [queryResult, setQueryResult] = useState([]);
 
   const handleProcess = async () => {
     setIsLoading(true);
     setLoadedTabs([]);
     setActiveTab('');
     setCurrentStep('');
-    setQueryResult([]); // Clear previous result
+    setQueryResult([]);
 
     for (let i = 0; i < tabsData.length; i++) {
       const { name, time } = tabsData[i];
       setCurrentStep(name);
       await new Promise((resolve) => setTimeout(resolve, time * 1000));
       setLoadedTabs((prev) => [...prev, name]);
-      if (i === 0) setActiveTab(name); // Set first tab active
+      if (i === 0) setActiveTab(name);
     }
 
     setCurrentStep('');
-    
-    // ✅ Simulate query result
+
     const mockResult = [
-      { year: '2018', gdp: 2400 },
-      { year: '2019', gdp: 2500 },
-      { year: '2020', gdp: 2200 },
-      { year: '2021', gdp: 2700 },
+      { year: '2015', gdp: 3120 },
+      { year: '2016', gdp: 3243 },
+      { year: '2017', gdp: 3358 },
+      { year: '2018', gdp: 3472 },
+      { year: '2019', gdp: 3589 },
+      { year: '2020', gdp: 3328 },
+      { year: '2021', gdp: 3561 },
+      { year: '2022', gdp: 3782 },
+      { year: '2023', gdp: 4023 },
     ];
     setQueryResult(mockResult);
 
@@ -126,14 +130,8 @@ const MainContent = ({ query, setQuery, onSubmit, onClear }) => {
           </div>
 
           <TabsContent activeTab={activeTab} />
-          <QueryResults rows={10} columns={10} />
-
-          {/* ✅ Visualization Panel - shown if queryResult exists */}
-          {queryResult.length > 0 && (
-            <div className="mt-8">
-              <VisualizationPanel data={queryResult} />
-            </div>
-          )}
+          <QueryResults rows={10} columns={10} data={queryResult} />
+          <ExportResults />
         </div>
       )}
     </div>
