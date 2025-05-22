@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './Components/Sidebar';
 import MainContent from './Components/MainContent';
 import ResultTable from './Components/ResultTable';
@@ -10,6 +10,14 @@ function App() {
   const [resultData, setResultData] = useState([]);
   const [visualizationType, setVisualizationType] = useState('Table');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [queryHistory, setQueryHistory] = useState(() => {
+    return JSON.parse(localStorage.getItem('queryHistory') || '[]');
+  });
+
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem('queryHistory') || '[]');
+    setQueryHistory(stored);
+  }, []);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
@@ -22,13 +30,29 @@ function App() {
   };
 
   const handleClearResults = () => {
+    if (query.trim()) {
+      const updated = [...queryHistory, query.trim()];
+      setQueryHistory(updated);
+      localStorage.setItem('queryHistory', JSON.stringify(updated));
+    }
+
     setQuery('');
     setResultData([]);
   };
 
+  const handleProcessFromSidebar = (selectedQuery) => {
+    setQuery(selectedQuery);
+  };
+
   return (
     <div className="flex h-screen bg-white">
-      <Sidebar isOpen={sidebarOpen} />
+      <Sidebar
+        isOpen={sidebarOpen}
+        queryHistory={queryHistory}
+        setQueryHistory={setQueryHistory}
+        handleProcess={handleProcessFromSidebar}
+      />
+
       <div className="flex-1 relative">
         <Header toggleSidebar={toggleSidebar} />
         <main
@@ -42,13 +66,8 @@ function App() {
             onSubmit={handleQuerySubmit}
             onClear={handleClearResults}
             isSidebarOpen={sidebarOpen}
+            setQueryHistory={setQueryHistory}
           />
-          {/* <VisualizationPanel
-            data={resultData}
-            type={visualizationType}
-            setType={setVisualizationType}
-          /> */}
-          {/* <ResultTable data={resultData} /> */}
         </main>
       </div>
     </div>

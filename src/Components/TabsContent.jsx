@@ -4,9 +4,9 @@ import { FiCopy } from 'react-icons/fi';
 const sqlQuery = `SELECT sector, 
        "2015", "2016", "2017", "2018", "2019", 
        "2020", "2021", "2022", "2023"
-FROM national_accounts_isic
-ORDER BY sector ASC
-LIMIT 10;`;
+        FROM national_accounts_isic
+        ORDER BY sector ASC
+        LIMIT 10;`;
 
 const jsonData = {
   tables_needed: ["national_accounts_isic"],
@@ -251,24 +251,51 @@ const TabsContent = ({ activeTab }) => {
         </div>
       )}
 
+{/* Visualization Table */}
       {activeTab === "Visualization Agent" && (
         <div>
           <p>
             <strong>Status:</strong>{" "}
             <span className="text-green-600">✅ Visualization suggested</span>
           </p>
+          
           <div className="mt-2 flex">
-            <p className="font-semibold mr-2">Details:</p>
-            <p>Suggested visualization: Bar Chart</p>
+            {/* <p className="font-semibold mr-2">Details:</p> */}
+            {/* <p>Suggested visualization: Bar Chart</p> */}
+
+ <p>
+            <strong>Details:</strong>{" "}
+          </p>
           </div>
+
+            <p>
+            <strong>Suggested visualization:</strong>{" "}
+            <span className="text-green-600">Table</span>
+          </p>
+
+          <p>
+            <b>Insights:</b>
+          </p>
+
+
           <div className="mt-4 font-semibold">🔍 Generated SQL Query</div>
           <div className="relative bg-blue-50 text-sm text-gray-900 rounded-md p-4 shadow mt-2 overflow-auto w-full">
             <pre className="whitespace-pre-wrap text-base leading-relaxed">
               {sqlQuery}
             </pre>
+
             <CopyButton text={sqlQuery} />
           </div>
+
+          {/*  */}
+
+
+
+
+          {/*  */}
         </div>
+
+        
       )}
     </div>
   );

@@ -29,7 +29,6 @@ const PieChartComponent = ({ data, xKey, yKey }) => {
     );
   };
 
-  // ✅ Custom Tooltip
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       const info = payload[0].payload;
@@ -50,29 +49,51 @@ const PieChartComponent = ({ data, xKey, yKey }) => {
   };
 
   return (
-    <div style={{ width: '100%', height: '500px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <ResponsiveContainer width={600} height={400}>
-        <PieChart>
-          <Tooltip content={<CustomTooltip />} />
-          <Legend />
-          <Pie
-            data={data}
-            dataKey={ykey}
-            nameKey={xkey}
-            cx="50%"
-            cy="50%"
-            innerRadius={90}
-            outerRadius={140}
-            fill="#8884d8"
-            labelLine={false}
-            label={renderCustomizedLabel}
-          >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Pie>
-        </PieChart>
-      </ResponsiveContainer>
+    <div style={{ width: '100%', height: '500px', display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+      {/* Pie Chart */}
+      <div style={{ width: '60%', height: '100%' }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Tooltip content={<CustomTooltip />} />
+            <Legend />
+            <Pie
+              data={data}
+              dataKey={ykey}
+              nameKey={xkey}
+              cx="50%"
+              cy="50%"
+              innerRadius={90}
+              outerRadius={140}
+              fill="#8884d8"
+              labelLine={false}
+              label={renderCustomizedLabel}
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Chart Info on Right */}
+      <div style={{ width: '30%', padding: '20px' }}>
+        <h3 className="text-lg font-semibold mb-4">Chart Info</h3>
+        <ul className="space-y-2">
+          {data.map((item, index) => (
+            <li key={index} style={{ display: 'flex', alignItems: 'center', fontSize: '14px' }}>
+              <span style={{
+                width: '14px',
+                height: '14px',
+                backgroundColor: COLORS[index % COLORS.length],
+                display: 'inline-block',
+                marginRight: '8px'
+              }}></span>
+              {item[xkey]}: <strong style={{ marginLeft: '6px' }}>{item[ykey]}</strong>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };

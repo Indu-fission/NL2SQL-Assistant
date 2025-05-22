@@ -4,10 +4,11 @@ import { HiChevronRight, HiChevronDown } from "react-icons/hi";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-export default function Sidebar({ isOpen }) {
+export default function Sidebar({ isOpen, queryHistory = [], handleProcess }) {
   const [showSchema, setShowSchema] = useState(false);
   const [copied, setCopied] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [uploadSuccess, setUploadSuccess] = useState(false); 
   const fileInputRef = useRef(null);
 
   const schemaText = `Table: national_accounts_isic (
@@ -42,7 +43,7 @@ export default function Sidebar({ isOpen }) {
       if (isDuplicate) {
         duplicateFound = true;
         toast.error(`File "${file.name}" already uploaded`, {
-          position: "top-center",
+          position: "bottom-center",
           autoClose: 3000,
         });
         return;
@@ -51,7 +52,7 @@ export default function Sidebar({ isOpen }) {
       if (!isCsv) {
         invalidTypeFound = true;
         toast.error(`Invalid file type: ${file.name}`, {
-          position: "top-center",
+          position: "bottom-center",
           autoClose: 3000,
         });
         return;
@@ -63,9 +64,10 @@ export default function Sidebar({ isOpen }) {
     if (validFiles.length > 0) {
       setUploadedFiles((prev) => [...prev, ...validFiles]);
       toast.success("File(s) uploaded successfully", {
-        position: "top-center",
+        position: "bottom-center",
         autoClose: 3000,
       });
+      setUploadSuccess(true); // Set upload success to true
     }
   };
 
@@ -88,6 +90,9 @@ export default function Sidebar({ isOpen }) {
 
   const handleRemoveFile = (index) => {
     setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+    if (uploadedFiles.length === 1) {
+      setUploadSuccess(false); // reset on file removal
+    }
   };
 
   return (
@@ -96,6 +101,7 @@ export default function Sidebar({ isOpen }) {
         isOpen ? "translate-x-0 w-80" : "-translate-x-full w-80"
       } font-sans text-gray-800 text-[15px] leading-relaxed overflow-y-auto`}
     >
+      {/* About Section */}
       <div className="mb-6">
         <h2 className="text-[18px] font-semibold mb-2">📝 About</h2>
         <p>
@@ -121,23 +127,13 @@ export default function Sidebar({ isOpen }) {
         </ul>
       </div>
 
-      <div className="mb-2">
-        <h3 className="text-[15px] font-semibold text-gray-700 mb-1">
-          Database Status
-        </h3>
-      </div>
-      <div className="mb-6 p-4 bg-blue-100 border border-blue-200 rounded shadow-sm">
-        <p className="text-green-600 font-bold">Database schema loaded.</p>
-      </div>
-
-      {/* Upload Section */}
       <div className="mb-6">
         <h2 className="text-[18px] font-semibold mb-2">📁 Upload Files</h2>
         <p className="text-sm mb-2 text-gray-600">Upload CSV files</p>
 
         <ToastContainer />
 
-        {/* Drag and Drop Box */}
+        {/* File upload UI */}
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
@@ -159,6 +155,7 @@ export default function Sidebar({ isOpen }) {
           />
         </div>
 
+        {/* Button to browse files */}
         <div className="text-center">
           <button
             onClick={() => fileInputRef.current.click()}
@@ -168,12 +165,13 @@ export default function Sidebar({ isOpen }) {
           </button>
         </div>
 
+        {/* Show uploaded files */}
         {uploadedFiles.length > 0 && (
           <div className="mt-3 space-y-2">
             {uploadedFiles.map((file, index) => (
               <div
                 key={index}
-                className="flex justify-between items-center bg-blue-50 border border-blue-200 p-2 rounded shadow-sm text-sm"
+                className="flex  justify-between cursor items-center bg-blue-50 border border-blue-200 p-2 rounded shadow-sm text-sm"
               >
                 <span className="truncate max-w-[180px]">{file.name}</span>
                 <button
@@ -185,6 +183,18 @@ export default function Sidebar({ isOpen }) {
                 </button>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Button to create tables and insert data */}
+        {uploadSuccess && (
+          <div className="p-4 max-w-xs mt-4">
+            <button
+              className="border border-black text-black bg-white rounded px-3 py-1.5
+                         hover:text-orange-500 hover:border-orange-500 transition-colors duration-200"
+            >
+              Create Tables and Insert Data
+            </button>
           </div>
         )}
       </div>
@@ -226,6 +236,34 @@ export default function Sidebar({ isOpen }) {
           </div>
         )}
       </div>
+
+      {/* Query History */}
+{queryHistory.length > 0 && (
+  <div className="mb-6">
+    <h2 className="text-[18px] font-semibold mb-2">🕘 Query History</h2>
+
+    <div className="mt-3 space-y-2">
+      {queryHistory.slice().reverse().map((item, index) => (
+        <div
+          key={index}
+          className="flex justify-between items-center bg-blue-50 border border-blue-200 p-2 rounded shadow-sm text-sm"
+        >
+          <span
+            className="truncate max-w-[180px] cursor-pointer" 
+            onClick={() => handleProcess(item)}
+          >
+            {item}
+          </span>
+
+          <button className="text-red-500 hover:text-red-700">
+
+          </button>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

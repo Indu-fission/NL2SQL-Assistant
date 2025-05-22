@@ -3,35 +3,52 @@ import { FiLoader } from 'react-icons/fi';
 import TabsContent from './TabsContent';
 import QueryResults from './QueryResults';
 import ExportResults from './ExportResults';
+import  { useEffect } from 'react'; 
 
 const tabsData = [
-  { name: 'Schema Loader', time: 0.0 },
-  { name: 'Selector Agent', time: 1.85 },
-  { name: 'Decomposer Agent', time: 5.47 },
-  { name: 'Refiner Agent', time: 2.13 },
-  { name: 'Database Execution', time: 0.01 },
-  { name: 'Visualization Agent', time: 1.77 },
+  { name: 'Schema Loader' },
+  { name: 'Selector Agent' },
+  { name: 'Decomposer Agent' },
+  { name: 'Refiner Agent' },
+  { name: 'Database Execution' },
+  { name: 'Visualization Agent' },
 ];
 
-const MainContent = ({ query, setQuery, onSubmit, onClear }) => {
+const MainContent = ({ query, setQuery, onSubmit, onClear, isSidebarOpen, setQueryHistory }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadedTabs, setLoadedTabs] = useState([]);
   const [activeTab, setActiveTab] = useState('');
   const [currentStep, setCurrentStep] = useState('');
   const [queryResult, setQueryResult] = useState([]);
+  const [hasProcessed, setHasProcessed] = useState(false);
+
+  const [totalExecutionTime, setTotalExecutionTime] = useState(null);
 
   const handleProcess = async () => {
+    const startTime = performance.now();
     setIsLoading(true);
     setLoadedTabs([]);
     setActiveTab('');
     setCurrentStep('');
     setQueryResult([]);
+    setHasProcessed(true);
+    setTotalExecutionTime(null);
 
+    let totalTime = 0;
     for (let i = 0; i < tabsData.length; i++) {
-      const { name, time } = tabsData[i];
+      const { name } = tabsData[i];
       setCurrentStep(name);
-      await new Promise((resolve) => setTimeout(resolve, time * 1000));
-      setLoadedTabs((prev) => [...prev, name]);
+
+      const simulatedTime = Math.random() * (8 - 1) + 1; 
+
+      const taskStartTime = performance.now(); 
+      await new Promise((resolve) => setTimeout(resolve, simulatedTime * 1000)); 
+      const taskEndTime = performance.now();
+      const taskExecutionTime = ((taskEndTime - taskStartTime) / 1000).toFixed(2);
+
+      totalTime += parseFloat(taskExecutionTime); 
+      setLoadedTabs((prev) => [...prev, { name, executionTime: taskExecutionTime }]);
+
       if (i === 0) setActiveTab(name);
     }
 
@@ -52,13 +69,16 @@ const MainContent = ({ query, setQuery, onSubmit, onClear }) => {
 
     await onSubmit?.();
     setIsLoading(false);
+    setTotalExecutionTime(totalTime.toFixed(4));
   };
 
   const isActive = query.trim() !== '';
 
   return (
     <div className="bg-white p-6 rounded-md shadow-md text-gray-800 border border-gray-200">
-      <h1 className="text-3xl font-semibold mb-1">🔍 Natural Language to SQL</h1>
+      <h1 className="text-3xl font-semibold mb-1">
+        🔍 Natural Language to SQL
+      </h1>
       <p className="text-sm text-gray-600 mb-4">
         Enter your question in natural language and get the SQL query.
       </p>
@@ -76,19 +96,37 @@ const MainContent = ({ query, setQuery, onSubmit, onClear }) => {
           onClick={handleProcess}
           disabled={isLoading}
           className={`px-4 py-2 rounded-md text-white flex items-center gap-2 transition 
-            ${isLoading ? 'bg-orange-300' : 'bg-orange-500 hover:bg-orange-600'}`}
+            ${
+              isLoading ? "bg-orange-300" : "bg-orange-500 hover:bg-orange-600"
+            }`}
         >
           {isLoading && <FiLoader className="animate-spin" />}
-          {isLoading ? 'Processing...' : 'Process Query'}
+          {isLoading ? "Processing..." : "Process Query"}
         </button>
 
+
         <button
-          onClick={onClear}
-          disabled={!isActive}
-          className={`px-4 py-2 border rounded-md transition 
-            ${isActive
-              ? 'border-orange-500 text-orange-500 hover:bg-orange-50 hover:border-orange-600 hover:text-orange-600'
-              : 'border-transparent text-black cursor-not-allowed'}`}
+          onClick={() => {
+            if (hasProcessed && query.trim()) {
+              const existingHistory = JSON.parse(
+                localStorage.getItem("queryHistory") || "[]"
+              );
+              const updatedHistory = [...existingHistory, query.trim()];
+              localStorage.setItem(
+                "queryHistory",
+                JSON.stringify(updatedHistory)
+              );
+              setQueryHistory(updatedHistory);
+            }
+
+            setQuery("");
+            setQueryResult([]);
+            setLoadedTabs([]);
+            setTotalExecutionTime(null);
+            setActiveTab("");
+            setHasProcessed(false); // 🔄 Reset flag
+          }}
+          className="px-4 py-2 border border-orange-500 text-orange-500 hover:bg-orange-50 hover:border-orange-600 hover:text-orange-600 rounded-md transition"
         >
           Clear Results
         </button>
@@ -104,26 +142,26 @@ const MainContent = ({ query, setQuery, onSubmit, onClear }) => {
       {loadedTabs.length > 0 && (
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-4">🔄 Processing Pipeline</h2>
+          {totalExecutionTime && (
+            <p className="text-sm text-gray-600 mb-4">
+              Execution time: {totalExecutionTime} sec
+            </p>
+          )}
 
           <div className="relative border-b border-gray-300 flex space-x-6 pb-2">
-            {tabsData.map((tab) => {
-              const isLoaded = loadedTabs.includes(tab.name);
-              const isActiveTab = activeTab === tab.name;
-
+            {loadedTabs.map((tab) => {
               return (
                 <button
                   key={tab.name}
-                  onClick={() => isLoaded && setActiveTab(tab.name)}
-                  disabled={!isLoaded}
+                  onClick={() => setActiveTab(tab.name)}
+                  disabled={!tab.executionTime}
                   className={`text-sm font-medium pb-2 transition border-b-2 ${
-                    isActiveTab
-                      ? 'border-orange-500 text-orange-600'
-                      : isLoaded
-                      ? 'text-gray-600 hover:text-orange-500 border-transparent hover:border-orange-300'
-                      : 'text-gray-400 cursor-not-allowed border-transparent'
+                    activeTab === tab.name
+                      ? "border-orange-500 text-orange-600"
+                      : "text-gray-600 hover:text-orange-500 border-transparent hover:border-orange-300"
                   }`}
                 >
-                  {tab.name} ({tab.time.toFixed(2)}s)
+                  {tab.name} ({tab.executionTime}s)
                 </button>
               );
             })}
