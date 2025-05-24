@@ -1,140 +1,381 @@
-import React from 'react';
+import React, { useState } from 'react';
+
+// Sophisticated dark color palette for professional look
+const COLORS = [
+  "#1a1a2e", "#16213e", "#0f3460", "#533483", "#7209b7",
+  "#2d4a77", "#046865", "#1b4d3e", "#2c5282", "#553c9a",
+  "#744c9e", "#1e40af", "#059669", "#dc2626", "#ea580c",
+  "#d97706", "#65a30d", "#0891b2", "#7c3aed", "#be185d"
+];
+
+const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
+const getColorByIndex = (index) => COLORS[index % COLORS.length];
 
 const HeatMap = ({ data = [], xKey = 'year', yKey = 'gdp' }) => {
-
-  // X-axis values (e.g. years)
-  const xLabels = [...new Set(data.map(item => item[xKey]))];
-
-  // Y-axis tick values
-  const yValues = data.map(item => item[yKey]);
-  const minY = Math.floor(Math.min(...yValues) / 100) * 100;
-  const maxY = Math.ceil(Math.max(...yValues) / 100) * 100;
-  const step = 200;
-
-  const yTicks = [];
-  for (let y = maxY; y >= minY; y -= step) {
-    yTicks.push(y);
-  }
-
-  // Strongly different colors for 4 ranges
-  const getColor = (value) => {
-    if (value <= 3100) return '#00A100';   // Green
-    if (value <= 3200) return '#128FD9';   // Blue
-    if (value <= 3300) return '#FFB200';   // Yellow
-    if (value <= 3400) return '#9C27B0';   // Purple
-    if (value <= 3500) return '#00BCD4';   // Cyan
-    if (value <= 3600) return '#8BC34A';   // Light Green
-    if (value <= 3700) return '#E91E63';   // Pink
-    if (value <= 3800) return '#3F51B5';   // Indigo
-    if (value <= 3900) return '#795548';   // Brown
-    if (value <= 4000) return '#607D8B';   // Blue Grey
-    return '#F44336';    
-    };
-
-  // Map color to range label
-  const colorLegend = [
-    { color: '#00A100', label: '<= 3100' },   // Green
-    { color: '#128FD9', label: '<= 3200' },   // Blue
-    { color: '#FFB200', label: '<= 3300' },   // Yellow
-    { color: '#9C27B0', label: '<= 3400' },   // Purple
-    { color: '#00BCD4', label: '<= 3500' },   // Cyan
-    { color: '#8BC34A', label: '<= 3600' },   // Light Green
-    { color: '#E91E63', label: '<= 3700' },   // Pink
-    { color: '#3F51B5', label: '<= 3800' },   // Indigo
-    { color: '#795548', label: '<= 3900' },   // Brown
-    { color: '#607D8B', label: '<= 4000' },   // Blue Grey
-    { color: '#F44336', label: '> 4000' }     // Red
-  ];
+  const [hoveredCell, setHoveredCell] = useState(null);
   
+  // Sample data for demonstration if no data provided
+  const sampleData = data.length > 0 ? data : [
+    { [xKey]: '2020', [yKey]: 45000 },
+    { [xKey]: '2021', [yKey]: 47000 },
+    { [xKey]: '2022', [yKey]: 49000 },
+    { [xKey]: '2023', [yKey]: 51000 },
+    { [xKey]: '2024', [yKey]: 53000 },
+    { [xKey]: '2020', [yKey]: 42000 },
+    { [xKey]: '2021', [yKey]: 44000 },
+    { [xKey]: '2022', [yKey]: 46000 },
+    { [xKey]: '2023', [yKey]: 48000 },
+    { [xKey]: '2024', [yKey]: 50000 },
+  ];
+
+  const xLabels = [...new Set(sampleData.map(item => item[xKey]))];
+  const yLabelsSet = new Set(sampleData.map(item => item[yKey]));
+  const yLabels = Array.from(yLabelsSet).sort((a, b) => b - a);
+
+  const dataMap = {};
+  sampleData.forEach(({ [xKey]: xVal, [yKey]: yVal }, idx) => {
+    if (!dataMap[yVal]) dataMap[yVal] = {};
+    dataMap[yVal][xVal] = { value: yVal, index: idx };
+  });
+
+  // Enhanced cell dimensions for better visual impact
+  const cellWidth = 100;
+  const cellHeight = 70;
+  const yAxisLabelWidth = 160;
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', padding: '30px',  }}>
-      {/* Y-axis */}
-      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', marginRight: '10px' }}>
-        {yTicks.map((tick, i) => (
-          <div key={i} style={{ height: '40px', fontSize: '12px', textAlign: 'right' }}>{tick}</div>
-        ))}
-        <div style={{ height: '20px' }}></div>
+    <div style={{ 
+      padding: '50px 40px', 
+      fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+      minHeight: '100vh',
+      color: '#1e293b'
+    }}>
+      {/* Header Section */}
+      <div style={{ 
+        textAlign: 'center', 
+        marginBottom: '60px',
+        borderBottom: '3px solid #e2e8f0',
+        paddingBottom: '30px'
+      }}>
+        <h2 style={{
+          fontSize: '32px',
+          fontWeight: '800',
+          color: '#0f172a',
+          margin: '0 0 15px 0',
+          letterSpacing: '-0.5px',
+          textTransform: 'uppercase'
+        }}>
+          Data Visualization Matrix
+        </h2>
+        <p style={{
+          fontSize: '16px',
+          color: '#64748b',
+          fontWeight: '500',
+          margin: 0,
+          letterSpacing: '0.5px'
+        }}>
+          Interactive {capitalize(yKey)} Analysis by {capitalize(xKey)}
+        </p>
       </div>
 
-      {/* Heatmap and axis */}
-      <div style={{ position: 'relative' }}>
-        {/* Y-axis Label */}
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        gap: '30px'
+      }}>
+        {/* Y-axis labels with enhanced styling */}
         <div
           style={{
-            position: 'absolute',
-            left: '-60px',
-            top: '28%',
-            transform: 'rotate(-90deg) translateY(-50%)',
-            fontWeight: 'bold',
-            fontSize: '14px'
+            marginRight: 15,
+            height: yLabels.length * cellHeight,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            minWidth: yAxisLabelWidth,
           }}
         >
-          {yKey}
-        </div>
-
-        {/* Grid */}
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {yTicks.map((tick, rowIndex) => (
-            <div key={rowIndex} style={{ display: 'flex' }}>
-              {xLabels.map((xVal, colIndex) => {
-                const item = data.find(d => d[xKey] === xVal);
-                const val = item ? item[yKey] : 0;
-                const showValue = val >= tick - step && val < tick;
-                const fill = showValue ? getColor(val) : '#f0f0f0';
-
-                return (
-                  <div
-                    key={colIndex}
-                    title={showValue ? `X: ${xVal}, ${yKey}: ${val}` : ''}
-                    style={{
-                      width: '50px',
-                      height: '40px',
-                      backgroundColor: fill,
-                      border: '1px solid #ccc',
-                      fontSize: '11px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: showValue ? 'white' : 'transparent',
-                      cursor: showValue ? 'pointer' : 'default'
-                    }}
-                  >
-                    {showValue ? val : ''}
-                  </div>
-                );
-              })}
+          {yLabels.map((label, i) => (
+            <div
+              key={i}
+              style={{
+                height: cellHeight,
+                textAlign: 'right',
+                color: '#334155',
+                fontSize: '15px',
+                fontWeight: '700',
+                lineHeight: `${cellHeight}px`,
+                userSelect: 'none',
+                paddingRight: 20,
+                whiteSpace: 'normal',
+                wordBreak: 'break-word',
+                background: 'linear-gradient(90deg, transparent 0%, #f8fafc 100%)',
+                borderRadius: '8px 0 0 8px',
+                transition: 'all 0.3s ease',
+              }}
+              title={`${capitalize(yKey)}: ${label.toLocaleString()}`}
+            >
+              {typeof label === 'number' ? label.toLocaleString() : label}
             </div>
           ))}
         </div>
 
-        {/* X-axis Ticks */}
-        <div style={{ display: 'flex', borderTop: '2px solid black' }}>
-          {xLabels.map((label, i) => (
-            <div key={i} style={{ width: '50px', textAlign: 'center', fontSize: '12px', paddingTop: '5px' }}>
-              {label}
-            </div>
-          ))}
-        </div>
-
-        {/* X-axis Label */}
-        <div style={{ textAlign: 'center', marginTop: '5px', fontWeight: 'bold' }}>{xKey}</div>
-      </div>
-
-      {/* Legend */}
-      <div style={{ marginLeft: '20px', fontSize: '13px' }}>
-        {colorLegend.map((item, idx) => (
-          <div key={idx} style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
-            <div style={{
-              width: '18px',
-              height: '18px',
-              backgroundColor: item.color,
-              border: '1px solid #ccc',
-              marginRight: '8px'
-            }}></div>
-            <span>{item.label}</span>
+        {/* Main heatmap container */}
+        <div style={{ position: 'relative' }}>
+          {/* Y-axis Label with modern styling */}
+          <div
+            style={{
+              position: 'absolute',
+              left: -yAxisLabelWidth - 60,
+              top: '50%',
+              transform: 'translateY(-50%) rotate(-90deg)',
+              fontWeight: '800',
+              fontSize: '20px',
+              color: '#1e293b',
+              whiteSpace: 'nowrap',
+              userSelect: 'none',
+              width: 200,
+              textAlign: 'center',
+              letterSpacing: '1px',
+              textTransform: 'uppercase',
+            }}
+          >
+            {capitalize(yKey)}
           </div>
-        ))}
+
+          {/* Enhanced heatmap grid */}
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            border: '3px solid #334155',
+            borderRadius: '12px',
+            overflow: 'hidden',
+            background: '#ffffff'
+          }}>
+            {yLabels.map((yVal, rowIndex) => (
+              <div key={rowIndex} style={{ display: 'flex' }}>
+                {xLabels.map((xVal, colIndex) => {
+                  const cell = dataMap[yVal]?.[xVal];
+                  const baseColor = cell ? getColorByIndex(cell.index) : '#f8fafc';
+                  const isHovered = hoveredCell === `${rowIndex}-${colIndex}`;
+                  
+                  return (
+                    <div
+                      key={colIndex}
+                      title={cell ? `${capitalize(xKey)}: ${xVal}\n${capitalize(yKey)}: ${typeof cell.value === 'number' ? cell.value.toLocaleString() : cell.value}` : 'No data'}
+                      onMouseEnter={() => setHoveredCell(`${rowIndex}-${colIndex}`)}
+                      onMouseLeave={() => setHoveredCell(null)}
+                      style={{
+                        width: cellWidth,
+                        height: cellHeight,
+                        backgroundColor: baseColor,
+                        borderRight: colIndex === xLabels.length - 1 ? 'none' : '2px solid #e2e8f0',
+                        borderBottom: rowIndex === yLabels.length - 1 ? 'none' : '2px solid #e2e8f0',
+                        fontSize: '13px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: cell ? '#ffffff' : '#94a3b8',
+                        cursor: cell ? 'pointer' : 'default',
+                        userSelect: 'none',
+                        overflow: 'hidden',
+                        fontWeight: '700',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+                        zIndex: isHovered ? 10 : 1,
+                        position: 'relative',
+                        textShadow: cell ? '0 1px 2px rgba(0,0,0,0.5)' : 'none',
+                        border: isHovered && cell ? '3px solid #fbbf24' : 'none',
+                      }}
+                    >
+                      {cell ? (typeof cell.value === 'number' ? cell.value.toLocaleString() : cell.value) : '—'}
+                      
+                      {/* Hover overlay effect */}
+                      {isHovered && cell && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '-45px',
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          background: '#1e293b',
+                          color: '#ffffff',
+                          padding: '8px 12px',
+                          borderRadius: '6px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          whiteSpace: 'nowrap',
+                          zIndex: 1000,
+                          border: '2px solid #fbbf24',
+                        }}>
+                          {`${capitalize(xKey)}: ${xVal}`}
+                          <div style={{
+                            fontSize: '11px',
+                            color: '#cbd5e1',
+                            marginTop: '2px'
+                          }}>
+                            {`${capitalize(yKey)}: ${typeof cell.value === 'number' ? cell.value.toLocaleString() : cell.value}`}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+
+          {/* Enhanced X-axis labels */}
+          <div
+            style={{
+              display: 'flex',
+              borderTop: '4px solid #334155',
+              marginTop: 25,
+              minWidth: xLabels.length * cellWidth,
+              justifyContent: 'flex-start',
+              paddingTop: 20,
+              background: 'linear-gradient(180deg, #f1f5f9 0%, transparent 100%)',
+              borderRadius: '0 0 12px 12px',
+            }}
+          >
+            {xLabels.map((label, i) => (
+              <div
+                key={i}
+                style={{
+                  width: cellWidth,
+                  textAlign: 'center',
+                  fontSize: '16px',
+                  fontWeight: '800',
+                  color: '#1e293b',
+                  userSelect: 'none',
+                  whiteSpace: 'normal',
+                  wordBreak: 'break-word',
+                  lineHeight: '1.3em',
+                  padding: '0 8px',
+                  boxSizing: 'border-box',
+                  letterSpacing: '0.5px',
+                  transition: 'all 0.3s ease',
+                }}
+                title={`${capitalize(xKey)}: ${label}`}
+              >
+                {label}
+              </div>
+            ))}
+          </div>
+
+          {/* Enhanced X-axis Label */}
+          <div
+            style={{
+              textAlign: 'center',
+              marginTop: 40,
+              fontWeight: '800',
+              fontSize: '20px',
+              color: '#1e293b',
+              userSelect: 'none',
+              width: '100%',
+              letterSpacing: '1px',
+              textTransform: 'uppercase',
+            }}
+          >
+            {capitalize(xKey)}
+          </div>
+        </div>
+
+        {/* Legend/Info Panel */}
+        <div style={{
+          marginLeft: '30px',
+          padding: '25px',
+          background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+          border: '2px solid #e2e8f0',
+          borderRadius: '12px',
+          minWidth: '200px',
+          maxWidth: '250px'
+        }}>
+          <h4 style={{
+            margin: '0 0 20px 0',
+            fontSize: '16px',
+            fontWeight: '800',
+            color: '#1e293b',
+            borderBottom: '2px solid #e2e8f0',
+            paddingBottom: '10px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
+            Chart Info
+          </h4>
+          
+          <div style={{ marginBottom: '15px' }}>
+            <div style={{ 
+              fontSize: '13px', 
+              color: '#64748b', 
+              fontWeight: '600',
+              marginBottom: '5px'
+            }}>
+              Data Points
+            </div>
+            <div style={{ 
+              fontSize: '20px', 
+              fontWeight: '800', 
+              color: '#1e293b' 
+            }}>
+              {sampleData.length}
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '15px' }}>
+            <div style={{ 
+              fontSize: '13px', 
+              color: '#64748b', 
+              fontWeight: '600',
+              marginBottom: '5px'
+            }}>
+              Categories
+            </div>
+            <div style={{ 
+              fontSize: '20px', 
+              fontWeight: '800', 
+              color: '#1e293b' 
+            }}>
+              {yLabels.length}
+            </div>
+          </div>
+
+          <div>
+            <div style={{ 
+              fontSize: '13px', 
+              color: '#64748b', 
+              fontWeight: '600',
+              marginBottom: '5px'
+            }}>
+              Time Periods
+            </div>
+            <div style={{ 
+              fontSize: '20px', 
+              fontWeight: '800', 
+              color: '#1e293b' 
+            }}>
+              {xLabels.length}
+            </div>
+          </div>
+
+          <div style={{
+            marginTop: '20px',
+            padding: '15px',
+            background: '#f1f5f9',
+            borderRadius: '8px',
+            border: '1px solid #cbd5e1'
+          }}>
+            <div style={{
+              fontSize: '12px',
+              color: '#475569',
+              fontWeight: '600',
+              textAlign: 'center'
+            }}>
+              💡 Hover over cells for detailed information
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   ScatterChart,
   Scatter,
@@ -6,87 +6,291 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   Cell,
   ResponsiveContainer,
+  ReferenceLine,
 } from 'recharts';
 
+// Professional color palette - bright and dark colors for light theme
+const COLORS = [
+  "#1a365d", "#2d3748", "#744210", "#276749", "#1a202c",
+  "#4a5568", "#553c9a", "#2c5282", "#9c4221", "#38a169",
+  "#d69e2e", "#ed8936", "#e53e3e", "#dd6b20", "#319795",
+  "#805ad5", "#3182ce", "#38b2ac", "#48bb78", "#ed64a6"
+];
+
+const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
+// Custom tooltip component
+const CustomTooltip = ({ active, payload, label, xKey, yKey, uniqueXLabels }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div className="bg-white border-2 border-gray-800 rounded-lg p-4 shadow-2xl">
+        <div className="space-y-2">
+          <div className="border-b border-gray-200 pb-2">
+            <p className="font-bold text-gray-800 text-sm uppercase tracking-wide">
+              Data Point
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-gray-700 font-semibold">
+              <span className="text-gray-500 font-medium">{capitalize(xKey)}:</span>{' '}
+              <span className="text-gray-800">{uniqueXLabels[data.__x__]}</span>
+            </p>
+            <p className="text-gray-700 font-semibold">
+              <span className="text-gray-500 font-medium">{capitalize(yKey)}:</span>{' '}
+              <span className="text-gray-800">{data.__y__.toFixed(2)}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
+// Custom dot component with enhanced visuals
+const CustomDot = ({ cx, cy, fill, index, payload }) => {
+  return (
+    <g>
+      {/* Outer ring for emphasis */}
+      <circle
+        cx={cx}
+        cy={cy}
+        r={10}
+        fill="none"
+        stroke={fill}
+        strokeWidth={2}
+        opacity={0.3}
+      />
+      {/* Main dot */}
+      <circle
+        cx={cx}
+        cy={cy}
+        r={6}
+        fill={fill}
+        stroke="#ffffff"
+        strokeWidth={2}
+        style={{
+          filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.1))'
+        }}
+      />
+      {/* Inner highlight */}
+      <circle
+        cx={cx - 1}
+        cy={cy - 1}
+        r={2}
+        fill="rgba(255,255,255,0.6)"
+      />
+    </g>
+  );
+};
+
 const ScatterPlot = ({ data, xKey, yKey }) => {
-  const defaultData = [
-    { year: 2018, gdp: 2400 },
-    { year: 2019, gdp: 2500 },
-    { year: 2020, gdp: 2200 },
-    { year: 2021, gdp: 2700 },
-  ];
+  const [hoveredPoint, setHoveredPoint] = useState(null);
+  
+  if (!Array.isArray(data) || data.length === 0 || !xKey || !yKey) {
+    return (
+      <div className="flex items-center justify-center h-96 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+        <div className="text-center">
+          <div className="text-4xl mb-4">📊</div>
+          <p className="text-gray-600 font-medium">Please provide data and select both X and Y fields.</p>
+        </div>
+      </div>
+    );
+  }
 
-  const plotData = data && data.length > 0 ? data : defaultData;
-  const xkey = xKey || 'year';
-  const ykey = yKey || 'gdp';
+  const uniqueXLabels = [...new Set(data.map(item => item[xKey]))];
+  const xLabelMap = Object.fromEntries(uniqueXLabels.map((label, index) => [label, index]));
 
-  const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00c49f', '#ff69b4'];
+  const plotData = useMemo(() => {
+    return data
+      .map((d, index) => {
+        const y = parseFloat(d[yKey]);
+        const x = xLabelMap[d[xKey]];
+        return !isNaN(y) && x !== undefined ? { ...d, __x__: x, __y__: y, __index__: index } : null;
+      })
+      .filter(Boolean);
+  }, [data, xKey, yKey, xLabelMap]);
+
+  const yStats = useMemo(() => {
+    const values = plotData.map(d => d.__y__);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const avg = values.reduce((a, b) => a + b, 0) / values.length;
+    return { min, max, avg };
+  }, [plotData]);
 
   return (
-    <div style={{ width: '100%', height: '500px', display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-      
-      {/* Chart Section */}
-      <div style={{ width: '60%', height: '100%' }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-            <CartesianGrid />
+    <div className="w-full bg-gradient-to-br from-gray-50 to-white rounded-2xl border border-gray-200 overflow-hidden">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-xl font-bold text-gray-800 tracking-tight">
+              {capitalize(yKey)} vs {capitalize(xKey)}
+            </h3>
+            <p className="text-sm text-gray-500 mt-1">
+              Interactive scatter plot visualization • {plotData.length} data points
+            </p>
+          </div>
+          <div className="flex items-center space-x-4 text-sm">
+            <div className="bg-gray-100 px-3 py-1 rounded-full">
+              <span className="text-gray-600 font-medium">Avg: </span>
+              <span className="text-gray-800 font-bold">{yStats.avg.toFixed(2)}</span>
+            </div>
+            <div className="bg-gray-100 px-3 py-1 rounded-full">
+              <span className="text-gray-600 font-medium">Range: </span>
+              <span className="text-gray-800 font-bold">{yStats.min.toFixed(1)} - {yStats.max.toFixed(1)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Chart Container */}
+      <div className="p-6">
+        <ResponsiveContainer width="100%" height={520}>
+          <ScatterChart 
+            margin={{ top: 20, right: 40, bottom: 120, left: 100 }}
+            onMouseMove={(e) => {
+              if (e && e.activePayload && e.activePayload.length > 0) {
+                setHoveredPoint(e.activePayload[0].payload.__index__);
+              }
+            }}
+            onMouseLeave={() => setHoveredPoint(null)}
+          >
+            {/* Enhanced grid */}
+            <CartesianGrid 
+              stroke="#e2e8f0" 
+              strokeWidth={1}
+              strokeDasharray="2 4"
+              opacity={0.7}
+            />
+
+            {/* Average line */}
+            <ReferenceLine 
+              y={yStats.avg} 
+              stroke="#4a5568" 
+              strokeDasharray="6 6" 
+              strokeWidth={2}
+              opacity={0.6}
+              label={{
+                value: `Avg: ${yStats.avg.toFixed(2)}`,
+                position: "topRight",
+                fill: "#4a5568",
+                fontSize: 12,
+                fontWeight: "600"
+              }}
+            />
+
+            {/* Enhanced X-Axis */}
             <XAxis
               type="number"
-              dataKey={xkey}
-              name={xkey}
+              dataKey="__x__"
+              name={capitalize(xKey)}
+              axisLine={{ stroke: '#2d3748', strokeWidth: 2 }}
+              tickLine={{ stroke: '#4a5568', strokeWidth: 1.5 }}
               label={{
-                value: xkey.toUpperCase(),
+                value: capitalize(xKey),
                 position: 'bottom',
-                offset: 10,
-                style: { fontWeight: 'bold' }
+                offset: 60,
+                style: {
+                  textAnchor: 'middle',
+                  fill: '#1a202c',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  letterSpacing: '0.5px'
+                }
               }}
-              tickMargin={10}
+              tickFormatter={(tick) => uniqueXLabels[tick] || ''}
+              tick={{
+                fill: '#2d3748',
+                fontSize: 11,
+                fontWeight: '600',
+                angle: -35,
+                textAnchor: 'end'
+              }}
+              domain={[0, uniqueXLabels.length - 1]}
+              interval={0}
+              height={100}
             />
+
+            {/* Enhanced Y-Axis */}
             <YAxis
               type="number"
-              dataKey={ykey}
-              name={ykey}
+              dataKey="__y__"
+              name={capitalize(yKey)}
+              axisLine={{ stroke: '#2d3748', strokeWidth: 2 }}
+              tickLine={{ stroke: '#4a5568', strokeWidth: 1.5 }}
               label={{
-                value: ykey.toUpperCase(),
+                value: capitalize(yKey),
                 angle: -90,
                 position: 'insideLeft',
-                offset: -5,
-                style: { fontWeight: 'bold' }
+                offset: 20,
+                style: {
+                  textAnchor: 'middle',
+                  fill: '#1a202c',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  letterSpacing: '0.5px'
+                }
               }}
-              tickMargin={10}
+              tick={{
+                fill: '#2d3748',
+                fontSize: 12,
+                fontWeight: '600'
+              }}
+              tickFormatter={(value) => value.toFixed(1)}
             />
-            <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-            <Legend />
-            <Scatter data={plotData}>
+
+            {/* Custom Tooltip */}
+            <Tooltip
+              content={<CustomTooltip xKey={xKey} yKey={yKey} uniqueXLabels={uniqueXLabels} />}
+              cursor={{
+                stroke: '#4a5568',
+                strokeWidth: 2,
+                strokeDasharray: '4 4',
+                opacity: 0.7
+              }}
+              wrapperStyle={{ zIndex: 1000 }}
+            />
+
+            {/* Enhanced Scatter with custom dots */}
+            <Scatter 
+              data={plotData} 
+              shape={<CustomDot />}
+            >
               {plotData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                <Cell 
+                  key={`cell-${index}`} 
+                  fill={COLORS[index % COLORS.length]}
+                  stroke={hoveredPoint === entry.__index__ ? '#1a202c' : 'transparent'}
+                  strokeWidth={hoveredPoint === entry.__index__ ? 3 : 0}
+                />
               ))}
             </Scatter>
           </ScatterChart>
         </ResponsiveContainer>
       </div>
 
-      {/* Chart Info Section */}
-      <div style={{ width: '30%', padding: '20px' }}>
-        <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '12px' }}>Chart Info</h3>
-        <ul style={{ listStyle: 'none', padding: 0, fontSize: '14px' }}>
-          {plotData.map((item, index) => (
-            <li key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-              <span style={{
-                width: '14px',
-                height: '14px',
-                backgroundColor: COLORS[index % COLORS.length],
-                display: 'inline-block',
-                marginRight: '8px'
-              }}></span>
-              {xkey}: <strong style={{ marginLeft: '4px' }}>{item[xkey]}</strong>,
-              &nbsp;{ykey}: <strong style={{ marginLeft: '4px' }}>{item[ykey]}</strong>
-            </li>
-          ))}
-        </ul>
+      {/* Footer with legend and stats */}
+      <div className="bg-gray-50 border-t border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 rounded-full bg-gray-600"></div>
+              <span className="text-sm text-gray-600 font-medium">Data Points</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-0.5 bg-gray-600 opacity-60" style={{borderTop: '2px dashed #4a5568'}}></div>
+              <span className="text-sm text-gray-600 font-medium">Average Line</span>
+            </div>
+          </div>
+          <div className="text-xs text-gray-500">
+            {/* Hover over points for detailed information */}
+          </div>
+        </div>
       </div>
     </div>
   );

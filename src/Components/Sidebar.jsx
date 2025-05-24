@@ -783,7 +783,7 @@ export default function Sidebar({ isOpen, queryHistory = [], setQueryHistory, ha
     >
       {/* About Section */}
       <div className="mb-6">
-        <h2 className="text-[18px] font-semibold mb-2">📝 About</h2>
+        <h2 className="text-[18px] font-semibold mb-2"  style={{ color: '#b58932' }}>📝 About</h2>
         <p>
           This app converts natural language into SQL queries for a SQLite
           database (<code>data/my_database.db</code>) using AI agents:
@@ -810,7 +810,7 @@ export default function Sidebar({ isOpen, queryHistory = [], setQueryHistory, ha
       {schemaText && !loadingSchema && (
         <>
           <p>
-            <strong>Database Status:</strong>
+            <strong  style={{ color: '#b58932' }}>Database Status:</strong>
           </p>
           <div className="mb-2 p-3 bg-blue-100 text-green-600 rounded text-md font-semibold">
             Database schema loaded.
@@ -861,7 +861,7 @@ export default function Sidebar({ isOpen, queryHistory = [], setQueryHistory, ha
 
       {/* File Upload Section */}
       <div className="mb-6">
-        <h2 className="text-[18px] font-semibold mb-2">📁 Upload Files</h2>
+        <h2 className="text-[18px] font-semibold mb-2"  style={{ color: '#b58932' }}>📁 Upload Files</h2>
         <p className="text-sm mb-2 text-gray-600">Upload CSV files</p>
 
         <ToastContainer />
@@ -937,7 +937,7 @@ export default function Sidebar({ isOpen, queryHistory = [], setQueryHistory, ha
 
       {/* Query History Section */}
       <div className="mb-6">
-        <h2 className="text-[18px] font-semibold mb-2">🕑 Query History</h2>
+        <h2 className="text-[18px] font-semibold mb-2"  style={{ color: '#b58932' }}>🕑 Query History</h2>
         <div className="flex flex-col space-y-3 max-h-60 overflow-y-auto">
           {[...queryHistory]
             .slice(0)

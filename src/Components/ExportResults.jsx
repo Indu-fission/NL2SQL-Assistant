@@ -72,8 +72,8 @@ const ExportResults = () => {
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-lg font-semibold mb-4">💾 Export Results</h2>
+    <div className="mt-4">
+      <h2 className="text-2xl font-semibold mb-2"  style={{ color: '#b58932' }}>💾 Export Results</h2>
 
       <div className="flex justify-between items-center w-[650px] px-4">
       
