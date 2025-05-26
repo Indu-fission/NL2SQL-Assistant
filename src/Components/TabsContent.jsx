@@ -716,15 +716,20 @@ const TabsContent = ({
             <span className="text-green-600">{tabData.status}</span>
           </p>
           <p className="mt-2">
-            <strong>Details:</strong> {typeof tabData.details === 'object' ? JSON.stringify(tabData.details) : tabData.details}
+            <strong>Details:</strong>{" "}
+            {typeof tabData.details === "object"
+              ? JSON.stringify(tabData.details)
+              : tabData.details}
           </p>
           {tabData.schema_content && (
             <>
-              <div className="mt-4 font-semibold" style={{ color: '#b58932' }}>📜 Schema Content</div>
+              <div className="mt-4 font-semibold" style={{ color: "#b58932" }}>
+                📜 Schema Content
+              </div>
               <div className="relative bg-gray-50 text-sm text-gray-900 rounded-md p-4 shadow mt-2">
                 <pre
                   className="whitespace-pre-wrap text-xs leading-relaxed overflow-auto"
-                  style={{ maxHeight: '300px' }}
+                  style={{ maxHeight: "300px" }}
                 >
                   {tabData.schema_content}
                 </pre>
@@ -745,18 +750,38 @@ const TabsContent = ({
             <strong className="font-medium">Details:</strong>{" "}
             {(() => {
               if (tabData.details) {
-                if (typeof tabData.details.explanation === 'string' && tabData.details.explanation.trim() !== "") {
-                  return <span className="text-gray-700">{tabData.details.explanation}</span>;
+                if (
+                  typeof tabData.details.explanation === "string" &&
+                  tabData.details.explanation.trim() !== ""
+                ) {
+                  return (
+                    <span className="text-gray-700">
+                      {tabData.details.explanation}
+                    </span>
+                  );
                 }
-                if (typeof tabData.details === 'object' && tabData.details !== null) {
+                if (
+                  typeof tabData.details === "object" &&
+                  tabData.details !== null
+                ) {
                   return <JsonViewer data={tabData.details} />;
                 }
-                if (typeof tabData.details === 'string') {
-                  return <span className="text-gray-700">{tabData.details}</span>;
+                if (typeof tabData.details === "string") {
+                  return (
+                    <span className="text-gray-700">{tabData.details}</span>
+                  );
                 }
-                return <span className="text-gray-500 italic">Details are not in a displayable format.</span>;
+                return (
+                  <span className="text-gray-500 italic">
+                    Details are not in a displayable format.
+                  </span>
+                );
               }
-              return <span className="text-gray-500 italic">No details available.</span>;
+              return (
+                <span className="text-gray-500 italic">
+                  No details available.
+                </span>
+              );
             })()}
           </div>
         </div>
@@ -799,7 +824,10 @@ const TabsContent = ({
               ) : (
                 <pre>{JSON.stringify(tabData.details, null, 2)}</pre>
               )}
-              <CopyButton textToCopy={tabData.details} onCopied={setCopiedQuery} />
+              <CopyButton
+                textToCopy={tabData.details}
+                onCopied={setCopiedQuery}
+              />
               {/* copiedQuery state is managed by TabsContent for this specific button if needed, or CopyButton can manage its own internal 'copied' state display */}
               {/* {copiedQuery && (
                 <span className="absolute top-2 right-10 text-xs text-green-600">Copied!</span>
@@ -807,7 +835,12 @@ const TabsContent = ({
             </div>
             {sqlQuery && (
               <>
-                <div className="mt-4 font-semibold" style={{ color: '#b58932' }}>🔍 Generated SQL Query</div>
+                <div
+                  className="mt-4 font-semibold"
+                  style={{ color: "#b58932" }}
+                >
+                  🔍 Generated SQL Query
+                </div>
                 <div className="relative bg-blue-50 text-sm text-gray-900 rounded-md p-4 shadow mt-2 overflow-auto w-full">
                   <pre className="whitespace-pre-wrap text-base leading-relaxed">
                     {sqlQuery}
@@ -827,7 +860,10 @@ const TabsContent = ({
             <span className="text-green-600">{tabData.status}</span>
           </p>
           <p className="mt-2">
-            <strong>Details:</strong> {typeof tabData.details === 'object' ? JSON.stringify(tabData.details) : tabData.details}
+            <strong>Details:</strong>{" "}
+            {typeof tabData.details === "object"
+              ? JSON.stringify(tabData.details)
+              : tabData.details}
           </p>
           {sqlQuery && (
             <>
@@ -846,13 +882,10 @@ const TabsContent = ({
               <MarkdownTable markdown={tabData.data_insights} />
             </>
           )}
-          <div>
-          <p className="mt-3">
-          <strong>Result Table:</strong>{" "}
-          </p>
-          <ResultTable data={queryResult} />
+          <div className="mt-4">
+            <p className="font-semibold mb-2">Result Table:</p>
+            <ResultTable data={queryResult} />
           </div>
-
         </div>
       )}
 
@@ -866,18 +899,32 @@ const TabsContent = ({
               </p>
               <div className="mt-2">
                 <p className="font-semibold mr-2 inline-block">Details:</p>
-                <span className="text-gray-700">{typeof tabData.details === 'object' ? JSON.stringify(tabData.details) : (tabData.details || "Summary and Data Insights process initiated.")}</span>
+                <span className="text-gray-700">
+                  {typeof tabData.details === "object"
+                    ? JSON.stringify(tabData.details)
+                    : tabData.details ||
+                      "Summary and Data Insights process initiated."}
+                </span>
               </div>
               {suggestedVisualization && ( // Use the prop from MainContent if available
-                 <div className="mt-2">
-                    <p className="font-semibold mr-2 inline-block">Suggested Visualization Type:</p>
-                    <span className="text-gray-700">{suggestedVisualization}</span>
+                <div className="mt-2">
+                  <p className="font-semibold mr-2 inline-block">
+                    Suggested Visualization Type:
+                  </p>
+                  <span className="text-gray-700">
+                    {suggestedVisualization}
+                  </span>
                 </div>
               )}
               {/* The insights prop from MainContent is displayed via QueryResults below */}
               {sqlQuery && (
                 <>
-                  <div className="mt-4 font-semibold" style={{ color: '#b58932' }}>🔍 Generated SQL Query</div>
+                  <div
+                    className="mt-4 font-semibold"
+                    style={{ color: "#b58932" }}
+                  >
+                    🔍 Generated SQL Query
+                  </div>
                   <div className="relative bg-blue-50 text-sm text-gray-900 rounded-md p-4 shadow mt-2 overflow-auto w-full">
                     <pre className="whitespace-pre-wrap text-base leading-relaxed">
                       {sqlQuery}
@@ -905,7 +952,12 @@ const TabsContent = ({
               </div>
             </>
           ) : (
-            activeTab === "Visualization Agent" && !tabData && <p className="mt-4 text-gray-600">Processing visualization data or no results to display yet...</p>
+            activeTab === "Visualization Agent" &&
+            !tabData && (
+              <p className="mt-4 text-gray-600">
+                Processing visualization data or no results to display yet...
+              </p>
+            )
           )}
         </>
       )}

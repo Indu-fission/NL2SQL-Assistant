@@ -124,10 +124,18 @@ import PieChartComponent from "./Charts/PieChart"
 import ResultTable from "./Charts/ResultTable"
 import ScatterPlot from "./Charts/ScatterPlot"
 import HeatMap from "./Charts/HeatMap"
+import 'primereact/resources/themes/saga-blue/theme.css';     
+import 'primereact/resources/primereact.min.css';             
+import 'primeicons/primeicons.css';                          
+import { MultiSelect } from 'primereact/multiselect';
+
 
 const VisualizationPanel = ({ data, chartType }) => {
   const [xOptions, setXOptions] = useState([])
   const [yOptions, setYOptions] = useState([])
+  // const [selectedX, setSelectedX] = useState([]);
+  // const [selectedY, setSelectedY] = useState([]);
+
   const [selectedX, setSelectedX] = useState("")
   const [selectedY, setSelectedY] = useState("")
   const [showAxisSelectors, setShowAxisSelectors] = useState(true)
@@ -184,7 +192,9 @@ const VisualizationPanel = ({ data, chartType }) => {
       {showAxisSelectors && (
         <>
           <div>
-            <label className="font-semibold text-sm mb-1 block">Select X-axis (categorical):</label>
+            <label className="font-semibold text-sm mb-1 block">
+              Select X-axis (categorical):
+            </label>
             <select
               value={selectedX}
               onChange={(e) => setSelectedX(e.target.value)}
@@ -201,7 +211,9 @@ const VisualizationPanel = ({ data, chartType }) => {
           </div>
 
           <div>
-            <label className="font-semibold text-sm mb-1 block">Select Y-axis (numeric):</label>
+            <label className="font-semibold text-sm mb-1 block">
+              Select Y-axis (numeric):
+            </label>
             <select
               value={selectedY}
               onChange={(e) => setSelectedY(e.target.value)}
@@ -218,25 +230,42 @@ const VisualizationPanel = ({ data, chartType }) => {
                 ))}
             </select>
           </div>
-
-      
         </>
       )}
-
       <div className="rounded p-2">
         {chartType === "line" && (
-          <LineChartComponent data={filteredData} xKey={selectedX} yKey={selectedY} yOptions={yOptions} />
+          <LineChartComponent
+            data={filteredData}
+            xKey={selectedX}
+            yKey={selectedY}
+            yOptions={yOptions}
+          />
         )}
         {chartType === "bar" && (
-          <BarChartComponent data={filteredData} xKey={selectedX} yKey={selectedY} yOptions={yOptions} />
+          <BarChartComponent
+            data={filteredData}
+            xKey={selectedX}
+            yKey={selectedY}
+            yOptions={yOptions}
+          />
         )}
-        {chartType === "pie" && <PieChartComponent data={filteredData} xKey={selectedX} yKey={selectedY} />}
-        {chartType === "scatterPlot" && <ScatterPlot data={filteredData} xKey={selectedX} yKey={selectedY} />}
-        {chartType === "heatMap" && <HeatMap data={filteredData} xKey={selectedX} yKey={selectedY} />}
+        {chartType === "pie" && (
+          <PieChartComponent
+            data={filteredData}
+            xKey={selectedX}
+            yKey={selectedY}
+          />
+        )}
+        {chartType === "scatterPlot" && (
+          <ScatterPlot data={filteredData} xKey={selectedX} yKey={selectedY} />
+        )}
+        {chartType === "heatMap" && (
+          <HeatMap data={filteredData} xKey={selectedX} yKey={selectedY} />
+        )}
         {chartType === "table" && <ResultTable data={filteredData} />}
       </div>
     </div>
-  )
+  );
 }
 
 export default VisualizationPanel

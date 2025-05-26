@@ -1,256 +1,254 @@
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts"
-import { useState } from "react"
+import React, { useState } from "react";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
-const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1)
+const capitalize = (str) => {
+  if (!str || typeof str !== 'string') return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 
-// Professional color palette with bright and dark colors for light theme
+// Refined professional color palette
 const COLORS = [
-  "#1a1a2e", // Deep Navy
-  "#16213e", // Dark Blue
-  "#0f3460", // Royal Blue
-  "#533483", // Deep Purple
-  "#7209b7", // Bright Purple
-  "#2d1b69", // Dark Indigo
-  "#f72585", // Bright Pink
-  "#b5179e", // Magenta
-  "#7209b7", // Purple
-  "#560bad", // Dark Purple
-  "#480ca8", // Blue Purple
-  "#3a0ca3", // Deep Blue
-  "#3f37c9", // Indigo
-  "#4361ee", // Bright Blue
-  "#4895ef", // Light Blue
-  "#4cc9f0"  // Cyan
+  '#34568B', // St. Patrick's Blue
+  '#FF6F61', // Living Coral
+  '#6B5B95', // Muted Purple
+  '#88B04B', // Greenery
+  '#F7CAC9', // Rose Quartz
+  '#92A8D1', // Serenity Blue
+  '#955251', // Faded Rose
+  '#B565A7', // Orchid
+  '#009B77', // Emerald Green
+  '#DD4124', // Tangerine
+  '#45B8AC', // Tiffany Blue
+  '#EFC050', // Gold
 ];
 
+
 const PieChartComponent = ({ data, xKey, yKey }) => {
-  const [activeIndex, setActiveIndex] = useState(null)
-  const [hoveredSlice, setHoveredSlice] = useState(null)
+  const [activeIndex, setActiveIndex] = useState(null);
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-96 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-        <div className="text-center">
-          <div className="text-6xl mb-4">📊</div>
-          <div className="text-xl font-semibold text-gray-700">No Data Available</div>
-          <div className="text-gray-500 mt-2">Please upload data to display the chart</div>
-        </div>
+      <div className="flex flex-col items-center justify-center h-[420px] text-gray-500 font-sans p-4 text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 mb-3 opacity-40">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z" />
+        </svg>
+        <div className="text-md font-semibold text-gray-700">No Data Available</div>
+        <div className="text-sm mt-1.5">Please provide data to display the chart.</div>
       </div>
-    )
+    );
   }
 
   if (!xKey || !yKey) {
     return (
-      <div className="flex items-center justify-center h-96 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-        <div className="text-center">
-          <div className="text-6xl mb-4">⚙️</div>
-          <div className="text-xl font-semibold text-gray-700">Configuration Required</div>
-          <div className="text-gray-500 mt-2">Please select both X and Y axes to display the chart</div>
-        </div>
+      <div className="flex flex-col items-center justify-center h-[420px] text-red-500 font-sans p-4 text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 mb-3 opacity-50">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17 17.25 21A2.25 2.25 0 0 0 21 18.75V16.5M11.42 15.17l2.4704-2.47041.7536-1.75361.061-1.061M11.42 15.17l-4.47-4.47m4.47 4.47-1.061-1.061M12.58 3.42A2.25 2.25 0 0 0 10.5 3h-5.25A2.25 2.25 0 0 0 3 5.25v5.25A2.25 2.25 0 0 0 5.25 12.75M12.58 3.42 18.75 9.58m-6.17-6.16A2.25 2.25 0 0 1 12.75 3h5.25A2.25 2.25 0 0 1 21 5.25V10.5A2.25 2.25 0 0 1 18.75 12.75M12.58 3.42 12.75 3h.001Z" />
+        </svg>
+        <div className="text-md font-semibold">Configuration Required</div>
+        <div className="text-sm mt-1.5">Please select category and value fields.</div>
       </div>
-    )
+    );
   }
 
-  // Process data with better aggregation
-  const processedData = data.map((item, index) => ({
-    name: String(item[xKey]) || `Item ${index + 1}`,
-    value: Number.parseFloat(item[yKey]) || 0,
-    originalIndex: index
-  })).filter(item => item.value > 0) // Remove zero values
+  const processedData = data
+    .map((item, index) => ({
+      name: String(item[xKey] === undefined || item[xKey] === null || String(item[xKey]).trim() === '' ? `Category ${index + 1}` : item[xKey]),
+      value: Number.parseFloat(item[yKey]) || 0,
+      originalIndex: index,
+    }))
+    .filter(item => item.value > 0);
 
-  // Calculate total for percentages
-  const total = processedData.reduce((sum, item) => sum + item.value, 0)
-
-  // Enhanced tooltip with better styling
-  const CustomTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload
-      const percentage = ((data.value / total) * 100).toFixed(1)
+  if (processedData.length === 0) {
       return (
-        <div className="bg-white border-2 border-gray-200 rounded-xl p-4 backdrop-blur-sm">
-          <div className="font-bold text-lg text-gray-800 mb-2">{data.name}</div>
-          <div className="space-y-1">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600 font-medium">{capitalize(yKey)}:</span>
-              <span className="font-bold text-gray-900">{data.value.toLocaleString()}</span>
+      <div className="flex flex-col items-center justify-center h-[420px] text-gray-500 font-sans p-4 text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 mb-3 opacity-40">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
+        </svg>
+        <div className="text-md font-semibold text-gray-700">No Valid Data</div>
+        <div className="text-sm mt-1.5">The selected fields result in no displayable data.</div>
+      </div>
+    );
+  }
+
+  const totalValue = processedData.reduce((sum, item) => sum + item.value, 0);
+
+  const CustomTooltipContent = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      const dataItem = payload[0].payload;
+      const percentage = totalValue > 0 ? ((dataItem.value / totalValue) * 100).toFixed(1) : 0;
+      return (
+        <div className="bg-white/95 backdrop-blur-sm shadow-lg rounded-md p-3 border border-gray-200 text-xs font-sans min-w-[200px] opacity-100">
+          <p className="font-semibold text-slate-700 mb-1.5 text-sm">
+            {capitalize(dataItem.name)}
+          </p>
+          <div className="text-slate-600 space-y-0.5">
+            <div className="flex justify-between">
+              <span>{capitalize(yKey)}:</span>
+              <span className="font-medium text-slate-700" style={{ color: payload[0].fill }}>{dataItem.value.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600 font-medium">Percentage:</span>
-              <span className="font-bold text-blue-600">{percentage}%</span>
+            <div className="flex justify-between">
+              <span>Percentage:</span>
+              <span className="font-medium text-slate-700" style={{ color: payload[0].fill }}>{percentage}%</span>
             </div>
           </div>
         </div>
-      )
+      );
     }
-    return null
-  }
+    return null;
+  };
 
-  // Custom label function for better readability
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, name }) => {
-    if (percent < 0.05) return null // Hide labels for slices smaller than 5%
-    
-    const RADIAN = Math.PI / 180
-    const radius = innerRadius + (outerRadius - innerRadius) * 1.15
-    const x = cx + radius * Math.cos(-midAngle * RADIAN)
-    const y = cy + radius * Math.sin(-midAngle * RADIAN)
+  const renderCustomizedOuterLabel = ({ cx, cy, midAngle, outerRadius, percent, name }) => {
+    if (percent < 0.035 && processedData.length > 7) return null;
+    if (percent < 0.045 && processedData.length > 5) return null;
+
+    const RADIAN = Math.PI / 180;
+    const radiusOffset = processedData.length > 6 ? 28 : 22;
+    const radius = outerRadius + radiusOffset;
+
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    const textAnchor = x > cx ? 'start' : 'end';
+
+    // MODIFICATION: Removed truncation for outer labels
+    const displayName = capitalize(name);
 
     return (
-      <text 
-        x={x} 
-        y={y} 
-        fill="#1f2937" 
-        textAnchor={x > cx ? 'start' : 'end'} 
+      <text
+        x={x}
+        y={y}
+        fill="#334155"
+        textAnchor={textAnchor}
         dominantBaseline="central"
-        className="font-semibold text-sm"
+        className="text-[10px] sm:text-[11px] font-semibold font-sans"
+        style={{ pointerEvents: 'none' }}
       >
-        {`${(percent * 100).toFixed(0)}%`}
+        {`${displayName} (${(percent * 100).toFixed(0)}%)`}
       </text>
-    )
-  }
+    );
+  };
 
-  // Mouse event handlers for interactivity
-  const onPieEnter = (_, index) => {
-    setActiveIndex(index)
-    setHoveredSlice(index)
-  }
+  const onPieEnterHandle = (_, index) => {
+    const dataEntry = processedData[index];
+    if (dataEntry) {
+        setActiveIndex(dataEntry.originalIndex);
+    }
+  };
 
-  const onPieLeave = () => {
-    setActiveIndex(null)
-    setHoveredSlice(null)
-  }
+  const onPieLeaveHandle = () => {
+    setActiveIndex(null);
+  };
 
-  // Custom legend with enhanced styling
-  const CustomLegend = ({ payload }) => {
+  const renderLegend = (props) => {
+    const { payload } = props;
     return (
-      <div className="flex flex-wrap justify-center gap-3 mt-6 px-4">
-        {payload.map((entry, index) => {
-          const isHovered = hoveredSlice === index
-          return (
-            <div 
-              key={`legend-${index}`}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-300 cursor-pointer ${
-                isHovered 
-                  ? 'bg-gray-100 border-gray-300 transform scale-105' 
-                  : 'bg-white border-gray-200 hover:bg-gray-50'
-              }`}
-              onMouseEnter={() => setHoveredSlice(index)}
-              onMouseLeave={() => setHoveredSlice(null)}
-            >
-              <div 
-                className="w-4 h-4 rounded-full border-2 border-white"
-                style={{ backgroundColor: entry.color }}
-              />
-              <span className="font-medium text-gray-700 text-sm">
-                {entry.value}
-              </span>
-              <span className="text-gray-500 text-xs">
-                ({((processedData[index]?.value / total) * 100).toFixed(1)}%)
-              </span>
-            </div>
-          )
-        })}
-      </div>
-    )
-  }
+      <div className="pr-1">
+        <ul className="list-none p-0 m-0">
+          {payload.map((legendEntry, index) => {
+            const originalDataIndex = processedData.find(p => p.name === legendEntry.value)?.originalIndex;
+            const isCurrentlyActive = activeIndex === originalDataIndex;
+            const isGenerallyActive = activeIndex === null;
 
-  return (
-    <div className="w-full bg-white rounded-2xl p-6">
-      {/* Header with statistics */}
-      <div className="mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <div>
-            <h3 className="text-2xl font-bold text-gray-800">Data Distribution</h3>
-            <p className="text-gray-600 mt-1">{capitalize(xKey)} by {capitalize(yKey)}</p>
-          </div>
-          <div className="text-right">
-            <div className="text-3xl font-bold text-blue-600">{processedData.length}</div>
-            <div className="text-sm text-gray-500">Categories</div>
-          </div>
-        </div>
-        
-        {/* Summary stats */}
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
-            <div className="text-2xl font-bold text-blue-600">{total.toLocaleString()}</div>
-            <div className="text-sm text-blue-700 font-medium">Total Value</div>
-          </div>
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100">
-            <div className="text-2xl font-bold text-purple-600">
-              {(total / processedData.length).toLocaleString(undefined, { maximumFractionDigits: 1 })}
-            </div>
-            <div className="text-sm text-purple-700 font-medium">Average</div>
-          </div>
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100">
-            <div className="text-2xl font-bold text-green-600">
-              {Math.max(...processedData.map(d => d.value)).toLocaleString()}
-            </div>
-            <div className="text-sm text-green-700 font-medium">Highest</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Chart Container */}
-      <div className="relative">
-        <ResponsiveContainer width="100%" height={500}>
-          <PieChart>
-            <Pie
-              data={processedData}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={renderCustomizedLabel}
-              outerRadius={180}
-              innerRadius={60}
-              paddingAngle={2}
-              fill="#8884d8"
-              dataKey="value"
-              nameKey="name"
-              onMouseEnter={onPieEnter}
-              onMouseLeave={onPieLeave}
-            >
-              {processedData.map((entry, index) => (
-                <Cell 
-                  key={`cell-${index}`} 
-                  fill={COLORS[index % COLORS.length]}
-                  stroke={activeIndex === index ? "#ffffff" : "transparent"}
-                  strokeWidth={activeIndex === index ? 3 : 0}
+            return (
+              <li
+                key={`item-${legendEntry.value}-${index}`}
+                className={`flex items-center mb-2 text-xs cursor-pointer transition-opacity duration-150 ${
+                  isCurrentlyActive || isGenerallyActive ? 'opacity-100 text-slate-800' : 'opacity-75 text-slate-600'
+                }`}
+                onMouseEnter={() => {
+                    if(originalDataIndex !== undefined) setActiveIndex(originalDataIndex);
+                }}
+                onMouseLeave={() => setActiveIndex(null)}
+              >
+                <div
+                  className="w-3 h-3 rounded-sm mr-2.5 transition-all duration-150"
                   style={{
-                    filter: activeIndex === index ? "brightness(1.1)" : "brightness(1)",
-                    transform: activeIndex === index ? "scale(1.02)" : "scale(1)",
-                    transformOrigin: "center",
-                    transition: "all 0.3s ease"
+                    backgroundColor: legendEntry.color,
+                    border: isCurrentlyActive ? `2px solid ${legendEntry.color}` : `1px solid ${legendEntry.color}`,
+                    filter: isCurrentlyActive ? `brightness(1.15) drop-shadow(0 0 3px ${legendEntry.color})` : 'brightness(1)',
                   }}
                 />
-              ))}
-            </Pie>
-            <Tooltip content={<CustomTooltip />} />
-            <Legend content={<CustomLegend />} />
-          </PieChart>
-        </ResponsiveContainer>
-        
-        {/* Center label */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="text-center bg-white rounded-full p-4 border-4 border-gray-100">
-            <div className="text-2xl font-bold text-gray-800">{processedData.length}</div>
-            <div className="text-xs text-gray-500 font-medium">SEGMENTS</div>
-          </div>
-        </div>
+                {/* MODIFICATION: Removed truncate and max-w, allow text wrapping for legend items */}
+                <span
+                  className="font-medium"
+                  style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}
+                >
+                  {capitalize(legendEntry.value)}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    );
+  };
+
+  return (
+    <div className="w-full font-sans">
+      <div className="mb-2 text-center">
+        <h3 className="text-base sm:text-lg font-semibold text-slate-700 m-0">
+          Data Distribution
+        </h3>
+        <p className="text-xs text-slate-500 mt-0.5">
+          {capitalize(xKey)} by {capitalize(yKey)}
+        </p>
       </div>
 
-      {/* Footer insights */}
-      <div className="mt-6 pt-4 border-t border-gray-100">
-        <div className="flex justify-between items-center text-sm text-gray-600">
-          <div>
-            <span className="font-medium">Largest segment:</span>{" "}
-            {processedData.reduce((max, item) => item.value > max.value ? item : max, processedData[0])?.name}
-          </div>
-          <div>
-            <span className="font-medium">Data points:</span> {data.length}
-          </div>
-        </div>
-      </div>
+      <ResponsiveContainer width="100%" height={400}>
+        <PieChart margin={{ top: 35, right: 35, bottom: 35, left: 35 }}>
+          <Pie
+            data={processedData}
+            cx="55%"
+            cy="50%"
+            labelLine={false}
+            label={renderCustomizedOuterLabel}
+            outerRadius="70%"
+            innerRadius="45%"
+            paddingAngle={0}
+            dataKey="value"
+            nameKey="name"
+            animationDuration={250}
+            onMouseEnter={onPieEnterHandle}
+            onMouseLeave={onPieLeaveHandle}
+          >
+            {processedData.map((entry, index) => (
+              <Cell
+                key={`cell-${entry.name}-${index}`}
+                fill={COLORS[index % COLORS.length]}
+                stroke={"#FFFFFF"}
+                strokeWidth={activeIndex === entry.originalIndex ? 3 : 1}
+                style={{
+                  filter: activeIndex === entry.originalIndex ? "brightness(1.08)" : "brightness(1)",
+                  transition: "filter 0.08s ease-out, stroke-width 0.08s ease-out",
+                  cursor: 'pointer'
+                }}
+              />
+            ))}
+          </Pie>
+          <Tooltip
+            content={<CustomTooltipContent />}
+            cursor={{ fill: 'rgba(200,200,200,0.02)' }}
+            wrapperStyle={{ zIndex: 1000 }}
+            position={{ y: 0 }}
+          />
+          <Legend
+            layout="vertical"
+            verticalAlign="middle"
+            align="right"
+            iconSize={9}
+            iconType="circle"
+            wrapperStyle={{
+              // MODIFICATION: Increased width to accommodate potentially longer legend names
+              width: '200px',
+              paddingLeft: "15px",
+              maxHeight: '330px',
+              overflowY: 'auto',
+            }}
+            content={renderLegend}
+          />
+        </PieChart>
+      </ResponsiveContainer>
     </div>
-  )
-}
+  );
+};
 
-export default PieChartComponent
+export default PieChartComponent;
