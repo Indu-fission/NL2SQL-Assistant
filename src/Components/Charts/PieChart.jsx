@@ -116,7 +116,7 @@ const PieChartComponent = ({ data, xKey, yKey }) => {
       <text
         x={x}
         y={y}
-        fill="#334155"
+        fill="#000"
         textAnchor={textAnchor}
         dominantBaseline="central"
         className="text-[10px] sm:text-[11px] font-semibold font-sans"

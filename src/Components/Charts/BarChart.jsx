@@ -881,9 +881,9 @@ const BarChartComponent = ({ data, xKey, yKey, yOptions }) => {
               textAnchor="end"
               height={70}
               tick={{
-                fill: '#4a5568',
+                fill: '#000',
                 fontSize: 11,
-                fontWeight: '600',
+                fontWeight: '700',
               }}
               axisLine={{ stroke: '#cbd5e0', strokeWidth: 2 }}
               tickLine={{ stroke: '#cbd5e0', strokeWidth: 1 }}
@@ -904,9 +904,9 @@ const BarChartComponent = ({ data, xKey, yKey, yOptions }) => {
             <YAxis
               tickFormatter={formatYAxisTick}
               tick={{
-                fill: '#4a5568',
+                fill: '#000',
                 fontSize: 11,
-                fontWeight: '600',
+                fontWeight: '700',
               }}
               axisLine={{ stroke: '#cbd5e0', strokeWidth: 2 }}
               tickLine={{ stroke: '#cbd5e0', strokeWidth: 1 }}
@@ -1004,9 +1004,9 @@ const BarChartComponent = ({ data, xKey, yKey, yOptions }) => {
             textAnchor="end"
             height={70}
             tick={{
-              fill: '#4a5568',
+              fill: '#000',
               fontSize: 11,
-              fontWeight: '600',
+              fontWeight: '700',
             }}
             axisLine={{ stroke: '#cbd5e0', strokeWidth: 2 }}
             tickLine={{ stroke: '#cbd5e0', strokeWidth: 1 }}
@@ -1027,9 +1027,9 @@ const BarChartComponent = ({ data, xKey, yKey, yOptions }) => {
           <YAxis
             tickFormatter={formatYAxisTick}
             tick={{
-              fill: '#4a5568',
+              fill: '#000',
               fontSize: 11,
-              fontWeight: '600',
+              fontWeight: '700',
             }}
             axisLine={{ stroke: '#cbd5e0', strokeWidth: 2 }}
             tickLine={{ stroke: '#cbd5e0', strokeWidth: 1 }}

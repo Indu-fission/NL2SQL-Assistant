@@ -1,4 +1,4 @@
-// import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Label, Legend } from "recharts"
+// import { LTooltipineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Label, Legend } from "recharts"
 // import { useState } from "react"
 
 // const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1)
@@ -493,7 +493,7 @@ const renderLegend = (props) => {
 
 
 const LineChartComponent = ({ data, xKey, yKey, yOptions }) => {
-  const [hoveredLine, setHoveredLine] = useState(null);
+  // const [hoveredLine, setHoveredLine] = useState(null);
 
   if (!data || data.length === 0) {
     return (
@@ -565,7 +565,7 @@ const LineChartComponent = ({ data, xKey, yKey, yOptions }) => {
               textAnchor="end"
               dy={10}
               height={85} 
-              tick={{ fontSize: 11, fill: "#4a4a4a", fontWeight: 500 }} 
+              tick={{ fontSize: 11, fill: "#000", fontWeight: 700 }} 
               axisLine={{ stroke: "#cccccc", strokeWidth: 1 }} 
               tickLine={{ stroke: "#cccccc", strokeWidth: 0.8 }} 
             >
@@ -578,7 +578,7 @@ const LineChartComponent = ({ data, xKey, yKey, yOptions }) => {
             </XAxis>
             <YAxis
               tickFormatter={yAxisTickFormatter}
-              tick={{ fontSize: 11, fill: "#4a4a4a", fontWeight: 500 }}
+              tick={{ fontSize: 11, fill: "#000", fontWeight: 700 }}
               axisLine={{ stroke: "#cccccc", strokeWidth: 1 }}
               tickLine={{ stroke: "#cccccc", strokeWidth: 0.8 }}
               width={85} 
@@ -592,8 +592,11 @@ const LineChartComponent = ({ data, xKey, yKey, yOptions }) => {
               />
             </YAxis>
             <Tooltip
-              content={<CustomTooltip xAxisKey={xAxisKey} />}
-              cursor={{ stroke: "#0984e3", strokeWidth: 1.5, strokeDasharray: "4 4" }} 
+              content={<CustomTooltip xAxisKey={xAxisKey} yKey={yKey}/>}
+              cursor={{
+                fill: 'rgba(102, 126, 234, 0.1)', // This is the current setting
+              }}
+              // cursor={{ stroke: "#0984e3", strokeWidth: 1.5, strokeDasharray: "4 4" }} 
             />
             <Legend
               layout="vertical"
@@ -616,7 +619,7 @@ const LineChartComponent = ({ data, xKey, yKey, yOptions }) => {
                 dataKey={metric}
                 name={capitalize(metric)}
                 stroke={COLORS[index % COLORS.length]}
-                strokeWidth={hoveredLine === metric ? 3.5 : 2.5} 
+                strokeWidth={3.5} 
                 dot={false} 
                 activeDot={{ 
                   r: 7,
@@ -625,10 +628,8 @@ const LineChartComponent = ({ data, xKey, yKey, yOptions }) => {
                   fill: "#ffffff",
                   style: { filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.2))" } 
                 }}
-                onMouseEnter={() => setHoveredLine(metric)}
-                onMouseLeave={() => setHoveredLine(null)}
                 style={{
-                  opacity: hoveredLine && hoveredLine !== metric ? 0.6 : 1, 
+                  // opacity: hoveredLine && hoveredLine !== metric ? 0.6 : 1, 
                   transition: "opacity 0.25s ease-in-out, stroke-width 0.25s ease-in-out",
                 }}
                 animationDuration={1000} 

@@ -1,459 +1,11 @@
-// import React, { useEffect, useState } from 'react';
-// import { Copy } from 'lucide-react';
-// import { FiCopy } from 'react-icons/fi';
-// import QueryResults from './QueryResults';
-// import ExportResults from './ExportResults';
-
-// const CollapsibleSection = ({ label, children, isOpen = true, onClick }) => (
-//   <div className="pl-3 border-l border-gray-300">
-//     <div
-//       className="cursor-pointer text-xs text-gray-800 flex items-center gap-1 py-1 select-none"
-//       onClick={onClick}
-//     >
-//       <span className="text-xs">{isOpen ? '▼' : '▶'} {label}</span>
-//     </div>
-//     {isOpen && <div className="pl-4">{children}</div>}
-//   </div>
-// );
-
-// const JsonViewer = ({ data }) => {
-//   const [collapsed, setCollapsed] = useState({});
-//   const [copied, setCopied] = useState(false);
-
-//   const toggleCollapse = (path) => {
-//     setCollapsed((prev) => ({ ...prev, [path]: !prev[path] }));
-//   };
-
-//   const handleCopy = () => {
-//     navigator.clipboard.writeText(JSON.stringify(data, null, 2));
-//     setCopied(true);
-//     setTimeout(() => setCopied(false), 1500);
-//   };
-
-//   const renderValue = (key, value, path = key) => {
-//     const isObject = typeof value === 'object' && value !== null;
-//     const isArray = Array.isArray(value);
-
-//     if (isArray) {
-//       const isCollapsed = collapsed[path];
-//       return (
-//         <CollapsibleSection label={`"${key}": [`} isOpen={!isCollapsed} onClick={() => toggleCollapse(path)}>
-//           {!isCollapsed && value.map((item, idx) => (
-//             <div key={idx} className="pl-4 border-l border-gray-200 text-gray-700 text-sm">
-//               {renderValue(idx, item, `${path}[${idx}]`)}
-//             </div>
-//           ))}
-//           <div className="text-xs text-gray-500">]</div>
-//         </CollapsibleSection>
-//       );
-//     } else if (isObject) {
-//       const isCollapsed = collapsed[path];
-//       return (
-//         <CollapsibleSection label={`"${key}": {`} isOpen={!isCollapsed} onClick={() => toggleCollapse(path)}>
-//           {!isCollapsed && Object.entries(value).map(([subKey, subVal]) => (
-//             <div key={subKey} className="pl-4 border-l border-gray-200 text-gray-700 text-sm">
-//               {renderValue(subKey, subVal, `${path}.${subKey}`)}
-//             </div>
-//           ))}
-//           <div className="text-xs text-gray-500">{'}'}</div>
-//         </CollapsibleSection>
-//       );
-//     } else {
-//       return (
-//         <div className="pl-4 text-sm text-gray-800">
-//           <span className="text-gray-700">"{key}": </span>
-//           <span>{JSON.stringify(value)}</span>
-//         </div>
-//       );
-//     }
-//   };
-
-//   return (
-//     <div className="relative p-4 font-mono text-sm mt-2 group">
-//       <div
-//         className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer flex items-center"
-//         onClick={handleCopy}
-//       >
-//         <Copy size={14} className="text-gray-400 hover:text-black" />
-//         {copied && <span className="ml-1 text-xs text-green-600">Copied!</span>}
-//       </div>
-
-//       <div>
-//         <span
-//           className="cursor-pointer select-none text-gray-800 text-sm"
-//           onClick={() => toggleCollapse('__root')}
-//         >
-//           {collapsed['__root'] ? '▶ {' : '▼ {'}
-//         </span>
-//         {!collapsed['__root'] && (
-//           <div className="pl-4">
-//             {Object.entries(data).map(([key, val]) => (
-//               <div key={key}>{renderValue(key, val, key)}</div>
-//             ))}
-//           </div>
-//         )}
-//         <div className="text-sm">{'}'}</div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// const TabsContent = ({ activeTab, sqlQuery, suggestedVisualization, decomposerJson }) => {
-//     const [tabData, setTabData] = useState(null);
-//   const [copiedQuery, setCopiedQuery] = useState(false);
-
-  
-
-//   useEffect(() => {
-//     const fetchTabData = async () => {
-//       let url = '';
-//       let isDatabaseExecution = false;
-  
-//       if (activeTab === 'Schema Loader') url = 'http://localhost:8000/schema';
-//       else if (activeTab === 'Selector Agent') url = 'http://localhost:8000/selector-agent';
-//       else if (activeTab === 'Decomposer Agent') url = 'http://localhost:8000/decomposer-agent';
-//       else if (activeTab === 'Refiner Agent') url = 'http://localhost:8000/refiner-agent';
-//       else if (activeTab === 'Database Execution') {
-//         isDatabaseExecution = true; // we'll handle both endpoints below
-//       }
-//       else if (activeTab === 'Visualization Agent') url = 'http://localhost:8000/visualization-agent';
-  
-//       try {
-//         if (isDatabaseExecution) {
-//           // Fetch both endpoints in parallel
-//           const [execRes, insightsRes] = await Promise.all([
-//             fetch('http://localhost:8000/database-execution'),
-//             fetch('http://127.0.0.1:8000/data-insights'),
-//           ]);
-  
-//           const execData = await execRes.json();
-//           const insightsData = await insightsRes.json();
-  
-//           // Merge and set
-//           setTabData({
-//             ...execData,
-//             data_insights: insightsData.data_insights,
-//           });
-//         } else if (url) {
-//           const response = await fetch(url);
-//           const data = await response.json();
-//           setTabData(data);
-//         }
-//       } catch (error) {
-//         console.error(`Error fetching data for ${activeTab}:`, error);
-//       }
-//     };
-  
-//     if (activeTab) fetchTabData();
-//   }, [activeTab]);
-  
-
-
-//   const handleCopyQuery = (query) => {
-//     navigator.clipboard.writeText(query);
-//     setCopiedQuery(true);
-//     setTimeout(() => setCopiedQuery(false), 1500);
-//   };
-
-//   if (!tabData) return null;
-
-// const CopyButton = ({ text }) => {
-//   const [copied, setCopied] = useState(false);
-
-//   const handleCopy = () => {
-//     navigator.clipboard.writeText(typeof text === "string" ? text : JSON.stringify(text, null, 2));
-//     setCopied(true);
-//     setTimeout(() => setCopied(false), 1500);
-//   };
-
-//   return (
-//     <button
-//       onClick={handleCopy}
-//       className="absolute top-2 right-2 text-blue-600 hover:text-blue-800"
-//       title="Copy to clipboard"
-//     >
-//       <FiCopy size={16} />
-//       {copied && <span className="ml-2 text-green-600 text-sm">Copied!</span>}
-//     </button>
-//   );
-// };
-
-
-// const MarkdownTable = ({ markdown }) => {
-//   const lines = markdown.split('\n').filter(line => line.includes('|'));
-//   if (lines.length < 2) return <p>No table data</p>;
-
-//   const headers = lines[0].split('|').map(cell => cell.trim()).filter(Boolean);
-//   const rows = lines.slice(2).map(line =>
-//     line.split('|').map(cell => cell.trim()).filter(Boolean)
-//   );
-
-//   return (
-//     <table className="table-auto border border-gray-300 w-full text-sm mt-2">
-//       <thead>
-//         <tr className="bg-gray-100">
-//           {headers.map((header, i) => (
-//             <th key={i} className="border px-4 py-2 text-left">{header}</th>
-//           ))}
-//         </tr>
-//       </thead>
-//       <tbody>
-//         {rows.map((row, idx) => (
-//           <tr key={idx}>
-//             {row.map((cell, j) => (
-//               <td key={j} className="border px-4 py-2">{cell}</td>
-//             ))}
-//           </tr>
-//         ))}
-//       </tbody>
-//     </table>
-//   );
-// };
-
-
-
-//   return (
-//     <div className="mt-6 text-gray-800">
-//       {activeTab === "Schema Loader" && (
-//         <div>
-//           <p>
-//             <strong>Status:</strong>{" "}
-//             <span className="text-green-600">{tabData.status}</span>
-//           </p>
-//           <p className="mt-2">
-//             <strong>Details:</strong> {tabData.details}
-//           </p>
-//           {sqlQuery && (
-//             <>
-//               <div className="mt-4 font-semibold"  style={{ color: '#b58932' }}>🔍 Generated SQL Query</div>
-//               <div className="relative bg-blue-50 text-sm text-gray-900 rounded-md p-4 shadow mt-2 overflow-auto w-full">
-//                 <pre className="whitespace-pre-wrap text-base leading-relaxed">
-//                   {sqlQuery}
-//                 </pre>
-//                 <CopyButton text={sqlQuery} />
-//               </div>
-//             </>
-//           )}
-//         </div>
-//       )}
-//       {activeTab === "Selector Agent" && (
-//         <div>
-//           <p>
-//             <strong>Status:</strong>{" "}
-//             <span className="text-green-600">{tabData.status}</span>
-//           </p>
-//           <p className="mt-2">
-//             <strong>Details:</strong>{" "}
-//             {tabData.details?.explanation || tabData.details}
-//           </p>
-//           {sqlQuery && (
-//             <>
-//               <div className="mt-4 font-semibold"  style={{ color: '#b58932' }}>🔍 Generated SQL Query</div>
-//               <div className="relative bg-blue-50 text-sm text-gray-900 rounded-md p-4 shadow mt-2 overflow-auto w-full">
-//                 <pre className="whitespace-pre-wrap text-base leading-relaxed">
-//                   {sqlQuery}
-//                 </pre>
-//                 <CopyButton text={sqlQuery} />
-//               </div>
-//             </>
-//           )}
-//         </div>
-//       )}
-//       {activeTab === "Decomposer Agent" && (
-//         <div>
-//           <p>
-//             <strong>Status:</strong>{" "}
-//             <span className="text-green-600">{tabData.status}</span>
-//           </p>
-//           <div className="mt-2">
-//             <p className="font-semibold">Details:</p>
-//             {typeof tabData.details === "string" ? (
-//               <p className="ml-2 mt-1">{tabData.details}</p>
-//             ) : (
-//               <JsonViewer data={tabData.details} />
-//             )}
-//             {decomposerJson && (
-//               <>
-//                 <div className="mt-4 font-semibold">🧠 Decomposer JSON</div>
-//                 <JsonViewer data={decomposerJson} />
-//               </>
-//             )}
-//             {sqlQuery && (
-//               <>
-//                 <div className="mt-4 font-semibold"  style={{ color: '#b58932' }}>🔍 Generated SQL Query</div>
-//                 <div className="relative bg-blue-50 text-sm text-gray-900 rounded-md p-4 shadow mt-2 overflow-auto w-full">
-//                   <pre className="whitespace-pre-wrap text-base leading-relaxed">
-//                     {sqlQuery}
-//                   </pre>
-//                   <CopyButton text={sqlQuery} />
-//                 </div>
-//               </>
-//             )}
-//           </div>
-//         </div>
-//       )}
-//       {activeTab === "Refiner Agent" && (
-//         <div>
-//           <p>
-//             <strong>Status:</strong>{" "}
-//             <span className="text-green-600">{tabData.status}</span>
-//           </p>
-
-//           <div className="mt-2">
-//             <p className="font-semibold mb-1">Details:</p>
-
-//             <div className="relative bg-gray-100 p-4 rounded-lg  border-gray-300 font-mono text-sm whitespace-pre-wrap text-blue-700">
-//               {typeof tabData.details === "string" ? (
-//                 tabData.details
-//               ) : (
-//                 <pre>{JSON.stringify(tabData.details, null, 2)}</pre>
-//               )}
-
-//               <div
-//                 className="absolute top-2 right-2 cursor-pointer text-gray-400 hover:text-black"
-//                 onClick={() => {
-//                   const textToCopy =
-//                     typeof tabData.details === "string"
-//                       ? tabData.details
-//                       : JSON.stringify(tabData.details, null, 2);
-//                   navigator.clipboard.writeText(textToCopy);
-//                   setCopiedQuery(true);
-//                   setTimeout(() => setCopiedQuery(false), 1500);
-//                 }}
-//               >
-//                 <Copy size={16} />
-//               </div>
-
-//               {copiedQuery && (
-//                 <span className="absolute top-2 right-8 text-xs text-green-600">
-//                   Copied!
-//                 </span>
-//               )}
-//             </div>
-//             {sqlQuery && (
-//               <>
-//                 <div className="mt-4 font-semibold"  style={{ color: '#b58932' }}>🔍 Generated SQL Query</div>
-//                 <div className="relative bg-blue-50 text-sm text-gray-900 rounded-md p-4 shadow mt-2 overflow-auto w-full">
-//                   <pre className="whitespace-pre-wrap text-base leading-relaxed">
-//                     {sqlQuery}
-//                   </pre>
-//                   <CopyButton text={sqlQuery} />
-//                 </div>
-//               </>
-//             )}
-//           </div>
-//         </div>
-//       )}
-//       {activeTab === "Database Execution" && (
-//         <div>
-//           <p>
-//             <strong>Status:</strong>{" "}
-//             <span className="text-green-600">{tabData.status}</span>
-//           </p>
-//           <p className="mt-2">
-//             <strong>Details:</strong> {tabData.details}
-//           </p>
-
-//           {sqlQuery && (
-//             <>
-//               <div className="mt-4 font-semibold">Executed SQL:</div>
-//               <div className="relative bg-blue-50 text-sm text-gray-900 rounded-md p-4 shadow mt-2 overflow-auto w-full">
-//                 <pre className="whitespace-pre-wrap text-base leading-relaxed">
-//                   {sqlQuery}
-//                 </pre>
-//                 <CopyButton text={sqlQuery} />
-//               </div>
-//             </>
-//           )}
-
-//           {tabData.data_insights && (
-//             <>
-//               <div className="mt-6 font-semibold">📊 Data Insights</div>
-//               <MarkdownTable markdown={tabData.data_insights} />
-//             </>
-//           )}
-
-//           {sqlQuery && (
-//             <>
-//               <div className="mt-4 font-semibold"  style={{ color: '#b58932' }}>🔍 Generated SQL Query</div>
-//               <div className="relative bg-blue-50 text-sm text-gray-900 rounded-md p-4 shadow mt-2 overflow-auto w-full">
-//                 <pre className="whitespace-pre-wrap text-base leading-relaxed">
-//                   {sqlQuery}
-//                 </pre>
-//                 <CopyButton text={sqlQuery} />
-//               </div>
-//             </>
-//           )}
-//         </div>
-//       )}
-
-//       {activeTab === "Visualization Agent" && (
-//         <>
-//         <div>
-//           <p>
-//             <strong>Status:</strong>{" "}
-//             <span className="text-green-600">{tabData.status}</span>
-//           </p>
-
-//           <div className="mt-2 flex">
-//             <p className="font-semibold mr-2">Details:</p>
-//             <p>Summary and Data Insights Generated Successfully.</p>
-//           </div>
-
-//           <div className="mt-2 flex">
-//             <p className="font-semibold">Suggested Visualization:</p>
-//             <p>{tabData.details}</p>
-//           </div>
-
-//           <div className="mt-4">
-//             <p className="font-semibold text-lg mb-2">💡 Summary Insights</p>
-//             {tabData.insights && (
-//               <ul className="list-disc pl-6 text-gray-800 leading-relaxed space-y-1">
-//                 {tabData.insights
-//                   .split("\n")
-//                   .map((line) =>
-//                     line
-//                       .replace(/[*_-]+/g, "") // Remove *, -, _
-//                       .replace(/\*\*(.*?)\*\*/g, "$1") // Remove bold markdown
-//                       .replace(/[{}]/g, "") // Remove {}
-//                       .trim()
-//                   )
-//                   .filter((line) => line) // Remove empty lines
-//                   .map((cleanedLine, index) => (
-//                     <li key={index}>{cleanedLine}</li>
-//                   ))}
-//               </ul>
-//             )}
-//           </div>
-//           {sqlQuery && (
-//             <>
-//               <div className="mt-4 font-semibold"  style={{ color: '#b58932' }}>🔍 Generated SQL Query</div>
-//               <div className="relative bg-blue-50 text-sm text-gray-900 rounded-md p-4 shadow mt-2 overflow-auto w-full">
-//                 <pre className="whitespace-pre-wrap text-base leading-relaxed">
-//                   {sqlQuery}
-//                 </pre>
-//                 <CopyButton text={sqlQuery} />
-//               </div>
-//             </>
-//           )}
-//         </div>
-       
-//         </>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default TabsContent;
-
-
-// TabsContent.js
-import React, { useEffect, useState } from 'react';
-import { Copy } from 'lucide-react';
-import { FiCopy } from 'react-icons/fi';
-import QueryResults from './QueryResults'; // Import QueryResults
-import ExportResults from './ExportResults'; // Import ExportResults
-import ResultTable from './ResultTable';
+import React, { useEffect, useState, useContext } from "react";
+import { Copy } from "lucide-react";
+import { FiCopy } from "react-icons/fi";
+import QueryResults from "./QueryResults";
+import ExportResults from "./ExportResults";
+import ResultTable from "./ResultTable";
+import { useTranslation } from "react-i18next";
+import { AppContext } from "./context/AppContext";
 
 const CollapsibleSection = ({ label, children, isOpen = true, onClick }) => (
   <div className="pl-3 border-l border-gray-300">
@@ -461,7 +13,9 @@ const CollapsibleSection = ({ label, children, isOpen = true, onClick }) => (
       className="cursor-pointer text-xs text-gray-800 flex items-center gap-1 py-1 select-none"
       onClick={onClick}
     >
-      <span className="text-xs">{isOpen ? '▼' : '▶'} {label}</span>
+      <span className="text-xs">
+        {isOpen ? "▼" : "▶"} {label}
+      </span>
     </div>
     {isOpen && <div className="pl-4">{children}</div>}
   </div>
@@ -483,31 +37,47 @@ const JsonViewer = ({ data }) => {
   };
 
   const renderValue = (key, value, path = key) => {
-    const isObject = typeof value === 'object' && value !== null;
+    const isObject = typeof value === "object" && value !== null;
     const isArray = Array.isArray(value);
 
     if (isArray) {
       const isCollapsed = collapsed[path];
       return (
-        <CollapsibleSection label={`"${key}": [`} isOpen={!isCollapsed} onClick={() => toggleCollapse(path)}>
-          {!isCollapsed && value.map((item, idx) => (
-            <div key={idx} className="pl-4 border-l border-gray-200 text-gray-700 text-sm">
-              {renderValue(idx, item, `${path}[${idx}]`)}
-            </div>
-          ))}
+        <CollapsibleSection
+          label={`"${key}": [`}
+          isOpen={!isCollapsed}
+          onClick={() => toggleCollapse(path)}
+        >
+          {!isCollapsed &&
+            value.map((item, idx) => (
+              <div
+                key={idx}
+                className="pl-4 border-l border-gray-200 text-gray-700 text-sm"
+              >
+                {renderValue(idx, item, `${path}[${idx}]`)}
+              </div>
+            ))}
           <div className="text-xs text-gray-500">]</div>
         </CollapsibleSection>
       );
     } else if (isObject) {
       const isCollapsed = collapsed[path];
       return (
-        <CollapsibleSection label={`"${key}": {`} isOpen={!isCollapsed} onClick={() => toggleCollapse(path)}>
-          {!isCollapsed && Object.entries(value).map(([subKey, subVal]) => (
-            <div key={subKey} className="pl-4 border-l border-gray-200 text-gray-700 text-sm">
-              {renderValue(subKey, subVal, `${path}.${subKey}`)}
-            </div>
-          ))}
-          <div className="text-xs text-gray-500">{'}'}</div>
+        <CollapsibleSection
+          label={`"${key}": {`}
+          isOpen={!isCollapsed}
+          onClick={() => toggleCollapse(path)}
+        >
+          {!isCollapsed &&
+            Object.entries(value).map(([subKey, subVal]) => (
+              <div
+                key={subKey}
+                className="pl-4 border-l border-gray-200 text-gray-700 text-sm"
+              >
+                {renderValue(subKey, subVal, `${path}.${subKey}`)}
+              </div>
+            ))}
+          <div className="text-xs text-gray-500">{"}"}</div>
         </CollapsibleSection>
       );
     } else {
@@ -520,8 +90,13 @@ const JsonViewer = ({ data }) => {
     }
   };
 
-  if (data === undefined || data === null) { // Handle cases where data might not be provided
-    return <div className="p-4 font-mono text-sm mt-2 group">No data to display.</div>;
+  if (data === undefined || data === null) {
+    // Handle cases where data might not be provided
+    return (
+      <div className="p-4 font-mono text-sm mt-2 group">
+        No data to display.
+      </div>
+    );
   }
 
   return (
@@ -537,18 +112,18 @@ const JsonViewer = ({ data }) => {
       <div>
         <span
           className="cursor-pointer select-none text-gray-800 text-sm"
-          onClick={() => toggleCollapse('__root')}
+          onClick={() => toggleCollapse("__root")}
         >
-          {collapsed['__root'] ? '▶ {' : '▼ {'}
+          {collapsed["__root"] ? "▶ {" : "▼ {"}
         </span>
-        {!collapsed['__root'] && (
+        {!collapsed["__root"] && (
           <div className="pl-4">
             {Object.entries(data).map(([key, val]) => (
               <div key={key}>{renderValue(key, val, key)}</div>
             ))}
           </div>
         )}
-        <div className="text-sm">{'}'}</div>
+        <div className="text-sm">{"}"}</div>
       </div>
     </div>
   );
@@ -561,70 +136,97 @@ const TabsContent = ({
   decomposerJson,
   queryResult,
   insights,
+  isAdmi,
   insightsLoading,
   rows,
-  columns
+  hasProcessed,
+  columns,
+  language = "english",
 }) => {
   const [tabData, setTabData] = useState(null);
-  const [copiedQuery, setCopiedQuery] = useState(false); // This state seems specific to Refiner Agent's copy button
+  const [copiedQuery, setCopiedQuery] = useState(false);
+  const { t } = useTranslation();
+  const { role } = useContext(AppContext);
 
   useEffect(() => {
     const fetchTabData = async () => {
-      let url = '';
+      if (!hasProcessed) return; // ⛔️ Skip fetching until processed
+
+      let url = "";
       let isDatabaseExecution = false;
-      // Reset tabData for each tab switch to avoid showing stale data briefly
       setTabData(null);
 
-
-      if (activeTab === 'Schema Loader') url = 'http://localhost:8000/schema';
-      else if (activeTab === 'Selector Agent') url = 'http://localhost:8000/selector-agent';
-      else if (activeTab === 'Decomposer Agent') url = 'http://localhost:8000/decomposer-agent';
-      else if (activeTab === 'Refiner Agent') url = 'http://localhost:8000/refiner-agent';
-      else if (activeTab === 'Database Execution') {
+      if (activeTab === "Schema Loader") url = "http://localhost:8000/schema";
+      else if (activeTab === "Selector Agent")
+        url = "http://localhost:8000/selector-agent";
+      else if (activeTab === "Decomposer Agent")
+        url = "http://localhost:8000/decomposer-agent";
+      else if (activeTab === "Refiner Agent")
+        url = "http://localhost:8000/refiner-agent";
+      else if (activeTab === "Database Execution") {
         isDatabaseExecution = true;
-      }
-      else if (activeTab === 'Visualization Agent') url = 'http://localhost:8000/visualization-agent';
+      } else if (activeTab === "Visualization Agent")
+        url = "http://localhost:8000/visualization-agent";
 
       try {
         if (isDatabaseExecution) {
+          const dataInsightsUrl =
+            language === "ar"
+              ? "http://127.0.0.1:8000/data-insights/arabic"
+              : "http://127.0.0.1:8000/data-insights/english";
+
           const [execRes, insightsRes] = await Promise.all([
-            fetch('http://localhost:8000/database-execution'),
-            fetch('http://127.0.0.1:8000/data-insights'),
+            fetch("http://localhost:8000/database-execution"),
+            fetch(dataInsightsUrl),
           ]);
-          if (!execRes.ok || !insightsRes.ok) { // Check if responses are OK
-            console.error("Error fetching database execution or data insights data");
-            setTabData({ status: "Error loading data", details: "Failed to fetch execution or insights data." });
+
+          if (!execRes.ok || !insightsRes.ok) {
+            console.error(
+              "Error fetching database execution or data insights data"
+            );
+            setTabData({
+              status: "Error loading data",
+              details: "Failed to fetch execution or insights data.",
+            });
             return;
           }
+
           const execData = await execRes.json();
           const insightsData = await insightsRes.json();
+
           setTabData({
             ...execData,
             data_insights: insightsData.data_insights,
           });
         } else if (url) {
           const response = await fetch(url);
-          if (!response.ok) { // Check if response is OK
-             console.error(`Error fetching data for ${activeTab}: ${response.status}`);
-             setTabData({ status: "Error loading data", details: `Failed to fetch data for ${activeTab}. Status: ${response.status}` });
-             return;
+          if (!response.ok) {
+            console.error(
+              `Error fetching data for ${activeTab}: ${response.status}`
+            );
+            setTabData({
+              status: "Error loading data",
+              details: `Failed to fetch data for ${activeTab}. Status: ${response.status}`,
+            });
+            return;
           }
           const data = await response.json();
           setTabData(data);
         }
-        // No specific 'else if (activeTab === 'Visualization Agent')' for fetch needed here
-        // if its URL is already covered by the generic 'else if (url)' block.
-        // If 'Visualization Agent' has no URL but relies on props, tabData might remain null
-        // or be set by its own specific logic if it were different.
-
       } catch (error) {
         console.error(`Error fetching data for ${activeTab}:`, error);
-        setTabData({ status: "Error loading data", details: `An error occurred: ${error.message}` });
+        setTabData({
+          status: "Error loading data",
+          details: `An error occurred: ${error.message}`,
+        });
       }
     };
 
-    if (activeTab) fetchTabData();
-  }, [activeTab]);
+    // ✅ Call fetch only if tab is active and processing is complete
+    if (activeTab && hasProcessed) {
+      fetchTabData();
+    }
+  }, [activeTab, language, hasProcessed]); // ✅ Include hasProcessed
 
   // CopyButton component (can be defined once, outside TabsContent or at the top level of the file)
   const CopyButton = ({ textToCopy, onCopied }) => {
@@ -632,7 +234,11 @@ const TabsContent = ({
 
     const handleCopy = () => {
       if (textToCopy === undefined || textToCopy === null) return;
-      navigator.clipboard.writeText(typeof textToCopy === "string" ? textToCopy : JSON.stringify(textToCopy, null, 2));
+      navigator.clipboard.writeText(
+        typeof textToCopy === "string"
+          ? textToCopy
+          : JSON.stringify(textToCopy, null, 2)
+      );
       setCopied(true);
       if (onCopied) onCopied(true); // For external state management if needed
       setTimeout(() => {
@@ -648,25 +254,50 @@ const TabsContent = ({
         title="Copy to clipboard"
       >
         <FiCopy size={14} />
-        {copied && <span className="ml-1 text-xs text-green-600 absolute -top-5 right-0 bg-white p-1 rounded shadow">Copied!</span>}
+        {copied && (
+          <span className="ml-1 text-xs text-green-600 absolute -top-5 right-0 bg-white p-1 rounded shadow">
+            Copied!
+          </span>
+        )}
       </button>
     );
   };
 
-
   const MarkdownTable = ({ markdown }) => {
-    if (!markdown || typeof markdown !== 'string') return <p className="text-sm text-gray-600 mt-2">No table data available or data is not in string format.</p>;
-    const lines = markdown.split('\n').filter(line => line.includes('|'));
-    if (lines.length < 2) return <p className="text-sm text-gray-600 mt-2">No valid table data found in Markdown.</p>;
+    if (!markdown || typeof markdown !== "string")
+      return (
+        <p className="text-sm text-gray-600 mt-2">
+          No table data available or data is not in string format.
+        </p>
+      );
+    const lines = markdown.split("\n").filter((line) => line.includes("|"));
+    if (lines.length < 2)
+      return (
+        <p className="text-sm text-gray-600 mt-2">
+          No valid table data found in Markdown.
+        </p>
+      );
 
-    const headers = lines[0].split('|').map(cell => cell.trim()).filter(Boolean);
+    const headers = lines[0]
+      .split("|")
+      .map((cell) => cell.trim())
+      .filter(Boolean);
     // Ensure the separator line is not processed as a data row
-    const dataLines = lines.slice(1).filter(line => !line.match(/^(\|\s*-+\s*)+\|?$/));
-    const rowsData = dataLines.map(line =>
-      line.split('|').map(cell => cell.trim()).filter(Boolean)
+    const dataLines = lines
+      .slice(1)
+      .filter((line) => !line.match(/^(\|\s*-+\s*)+\|?$/));
+    const rowsData = dataLines.map((line) =>
+      line
+        .split("|")
+        .map((cell) => cell.trim())
+        .filter(Boolean)
     );
-     if (headers.length === 0 && rowsData.length === 0) return <p className="text-sm text-gray-600 mt-2">Table headers or rows are empty after parsing.</p>;
-
+    if (headers.length === 0 && rowsData.length === 0)
+      return (
+        <p className="text-sm text-gray-600 mt-2">
+          Table headers or rows are empty after parsing.
+        </p>
+      );
 
     return (
       <div className="overflow-x-auto mt-2">
@@ -674,7 +305,12 @@ const TabsContent = ({
           <thead>
             <tr className="bg-gray-100">
               {headers.map((header, i) => (
-                <th key={i} className="border border-gray-300 px-3 py-2 text-left font-medium text-gray-700">{header}</th>
+                <th
+                  key={i}
+                  className="border border-gray-300 px-3 py-2 text-left font-medium text-gray-700"
+                >
+                  {header}
+                </th>
               ))}
             </tr>
           </thead>
@@ -682,12 +318,23 @@ const TabsContent = ({
             {rowsData.map((row, idx) => (
               <tr key={idx} className="hover:bg-gray-50">
                 {row.map((cell, j) => (
-                  <td key={j} className="border border-gray-300 px-3 py-2 text-gray-700">{cell}</td>
+                  <td
+                    key={j}
+                    className="border border-gray-300 px-3 py-2 text-gray-700"
+                  >
+                    {cell}
+                  </td>
                 ))}
                 {/* Fill empty cells if row has fewer columns than headers */}
-                {headers.length > row.length && Array(headers.length - row.length).fill(null).map((_, k) => (
-                    <td key={`empty-${idx}-${k}`} className="border border-gray-300 px-3 py-2"></td>
-                ))}
+                {headers.length > row.length &&
+                  Array(headers.length - row.length)
+                    .fill(null)
+                    .map((_, k) => (
+                      <td
+                        key={`empty-${idx}-${k}`}
+                        className="border border-gray-300 px-3 py-2"
+                      ></td>
+                    ))}
               </tr>
             ))}
           </tbody>
@@ -697,26 +344,30 @@ const TabsContent = ({
   };
 
   // Loading state for tabData
-  if (!tabData && (activeTab !== "Visualization Agent" || (activeTab === "Visualization Agent" && !queryResult))) {
+  if (
+    !tabData &&
+    (activeTab !== "Visualization Agent" ||
+      (activeTab === "Visualization Agent" && !queryResult))
+  ) {
     // For Visualization Agent, if tabData is null but queryResult is available, we might still want to show QueryResults.
     // This condition ensures we show loading only if tabData is expected and not yet loaded.
     // Or if Visualization Agent has no queryResult yet either.
-    if (activeTab && activeTab !== 'Visualization Agent') { // Only show loader if a tab that fetches its own data is active
-        return <div className="mt-6 text-gray-800 p-4">Loading tab content...</div>;
+    if (activeTab && activeTab !== "Visualization Agent") {
+      // Only show loader if a tab that fetches its own data is active
+      return <div className="mt-6 text-gray-800 p-4">{t("loading")}...</div>;
     }
   }
 
-
   return (
     <div className="mt-6 text-gray-800">
-      {activeTab === "Schema Loader" && tabData && (
+      {role === "admin" && activeTab === "Schema Loader" && tabData && (
         <div>
           <p>
-            <strong>Status:</strong>{" "}
+            <strong>{t("status")}:</strong>{" "}
             <span className="text-green-600">{tabData.status}</span>
           </p>
           <p className="mt-2">
-            <strong>Details:</strong>{" "}
+            <strong>{t("details")}:</strong>{" "}
             {typeof tabData.details === "object"
               ? JSON.stringify(tabData.details)
               : tabData.details}
@@ -724,7 +375,7 @@ const TabsContent = ({
           {tabData.schema_content && (
             <>
               <div className="mt-4 font-semibold" style={{ color: "#b58932" }}>
-                📜 Schema Content
+                📜 {t("schemaContent")}
               </div>
               <div className="relative bg-gray-50 text-sm text-gray-900 rounded-md p-4 shadow mt-2">
                 <pre
@@ -740,14 +391,14 @@ const TabsContent = ({
         </div>
       )}
 
-      {activeTab === "Selector Agent" && tabData && (
+      {role === "admin" && activeTab === "Selector Agent" && tabData && (
         <div>
           <p>
-            <strong>Status:</strong>{" "}
+            <strong>{t("status")}:</strong>{" "}
             <span className="text-green-600">{tabData.status}</span>
           </p>
           <div className="mt-2">
-            <strong className="font-medium">Details:</strong>{" "}
+            <strong className="font-medium">{t("details")}:</strong>{" "}
             {(() => {
               if (tabData.details) {
                 if (
@@ -771,30 +422,24 @@ const TabsContent = ({
                     <span className="text-gray-700">{tabData.details}</span>
                   );
                 }
-                return (
-                  <span className="text-gray-500 italic">
-                    Details are not in a displayable format.
-                  </span>
-                );
+                return <span className="text-gray-500 italic">{t("not")}</span>;
               }
               return (
-                <span className="text-gray-500 italic">
-                  No details available.
-                </span>
+                <span className="text-gray-500 italic">{t("nodata")}.</span>
               );
             })()}
           </div>
         </div>
       )}
 
-      {activeTab === "Decomposer Agent" && tabData && (
+      {role === "admin" && activeTab === "Decomposer Agent" && tabData && (
         <div>
           <p>
-            <strong>Status:</strong>{" "}
+            <strong>{t("status")}:</strong>{" "}
             <span className="text-green-600">{tabData.status}</span>
           </p>
           <div className="mt-2">
-            <p className="font-semibold">Details:</p>
+            <p className="font-semibold">{t("details")}:</p>
             {typeof tabData.details === "string" ? (
               <p className="ml-2 mt-1">{tabData.details}</p>
             ) : (
@@ -802,7 +447,9 @@ const TabsContent = ({
             )}
             {decomposerJson && (
               <>
-                <div className="mt-4 font-semibold">🧠 Decomposer JSON</div>
+                <div className="mt-4 font-semibold">
+                  🧠{t("Decomposer JSON")}
+                </div>
                 <JsonViewer data={decomposerJson} />
               </>
             )}
@@ -810,14 +457,14 @@ const TabsContent = ({
         </div>
       )}
 
-      {activeTab === "Refiner Agent" && tabData && (
+      {role === "admin" && activeTab === "Refiner Agent" && tabData && (
         <div>
           <p>
-            <strong>Status:</strong>{" "}
+            <strong>{t("status")}:</strong>{" "}
             <span className="text-green-600">{tabData.status}</span>
           </p>
           <div className="mt-2">
-            <p className="font-semibold mb-1">Details:</p>
+            <p className="font-semibold mb-1">{t("details")}:</p>
             <div className="relative bg-gray-100 p-4 rounded-lg border border-gray-300 font-mono text-sm whitespace-pre-wrap text-gray-800">
               {typeof tabData.details === "string" ? (
                 tabData.details
@@ -839,7 +486,7 @@ const TabsContent = ({
                   className="mt-4 font-semibold"
                   style={{ color: "#b58932" }}
                 >
-                  🔍 Generated SQL Query
+                  🔍 {t("Generated SQL Query")}
                 </div>
                 <div className="relative bg-blue-50 text-sm text-gray-900 rounded-md p-4 shadow mt-2 overflow-auto w-full">
                   <pre className="whitespace-pre-wrap text-base leading-relaxed">
@@ -853,14 +500,14 @@ const TabsContent = ({
         </div>
       )}
 
-      {activeTab === "Database Execution" && tabData && (
+      {role === "admin" && activeTab === "Database Execution" && tabData && (
         <div>
           <p>
-            <strong>Status:</strong>{" "}
+            <strong>{t("status")}:</strong>{" "}
             <span className="text-green-600">{tabData.status}</span>
           </p>
           <p className="mt-2">
-            <strong>Details:</strong>{" "}
+            <strong>{t("details")}:</strong>{" "}
             {typeof tabData.details === "object"
               ? JSON.stringify(tabData.details)
               : tabData.details}
@@ -878,12 +525,12 @@ const TabsContent = ({
           )}
           {tabData.data_insights && (
             <>
-              <div className="mt-6 font-semibold">📊 Data Insights</div>
+              <div className="mt-6 font-semibold">📊 {t("Data Insights")}</div>
               <MarkdownTable markdown={tabData.data_insights} />
             </>
           )}
           <div className="mt-4">
-            <p className="font-semibold mb-2">Result Table:</p>
+            <p className="font-semibold mb-2">{t("Result")}:</p>
             <ResultTable data={queryResult} />
           </div>
         </div>
@@ -891,14 +538,17 @@ const TabsContent = ({
 
       {activeTab === "Visualization Agent" && (
         <>
-          {tabData && ( // Display this section only if tabData specific to Visualization Agent is loaded
+          {/* Admins get full visualization agent tab content */}
+          {tabData && (
             <div>
               <p>
-                <strong>Status:</strong>{" "}
+                <strong>{t("status")}:</strong>{" "}
                 <span className="text-green-600">{tabData.status}</span>
               </p>
               <div className="mt-2">
-                <p className="font-semibold mr-2 inline-block">Details:</p>
+                <p className="font-semibold mr-2 inline-block">
+                  {t("details")}:
+                </p>
                 <span className="text-gray-700">
                   {typeof tabData.details === "object"
                     ? JSON.stringify(tabData.details)
@@ -906,24 +556,23 @@ const TabsContent = ({
                       "Summary and Data Insights process initiated."}
                 </span>
               </div>
-              {suggestedVisualization && ( // Use the prop from MainContent if available
+              {suggestedVisualization && (
                 <div className="mt-2">
                   <p className="font-semibold mr-2 inline-block">
-                    Suggested Visualization Type:
+                    {t("Suggested Visualization Type")}:
                   </p>
                   <span className="text-gray-700">
                     {suggestedVisualization}
                   </span>
                 </div>
               )}
-              {/* The insights prop from MainContent is displayed via QueryResults below */}
               {sqlQuery && (
                 <>
                   <div
                     className="mt-4 font-semibold"
                     style={{ color: "#b58932" }}
                   >
-                    🔍 Generated SQL Query
+                    🔍{t("Generated SQL Query")}
                   </div>
                   <div className="relative bg-blue-50 text-sm text-gray-900 rounded-md p-4 shadow mt-2 overflow-auto w-full">
                     <pre className="whitespace-pre-wrap text-base leading-relaxed">
@@ -935,8 +584,9 @@ const TabsContent = ({
               )}
             </div>
           )}
-          {/* QueryResults and ExportResults are always shown for Visualization Agent if queryResult has data */}
-          {(queryResult && queryResult.length > 0) || insights ? ( // Show if there's data or insights
+
+          {/* QueryResults and ExportResults shown to all users if data exists */}
+          {(queryResult && queryResult.length > 0) || insights ? (
             <>
               <div className="mt-6">
                 <QueryResults
@@ -952,7 +602,7 @@ const TabsContent = ({
               </div>
             </>
           ) : (
-            activeTab === "Visualization Agent" &&
+            !isAdmi &&
             !tabData && (
               <p className="mt-4 text-gray-600">
                 Processing visualization data or no results to display yet...
