@@ -4,7 +4,7 @@ import TabsContent from "./TabsContent";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { AppContext } from "./context/AppContext";
-import { CgSpinner } from "react-icons/cg";
+import { CgSpinner } from 'react-icons/cg';
 
 const initialRoleSpecificProcessingState = {
   isLoading: false,
@@ -19,6 +19,7 @@ const initialRoleSpecificProcessingState = {
   insightsLoading: false,
   errorMessage: "",
 };
+
 
 const MainContent = ({
   query,
@@ -47,14 +48,8 @@ const MainContent = ({
   // const [insightsLoading, setInsightsLoading] = useState(false);
 
   const [allRolesData, setAllRolesData] = useState({
-    admin: {
-      ...initialRoleSpecificProcessingState,
-      activeTab: "Schema Loader",
-    },
-    user: {
-      ...initialRoleSpecificProcessingState,
-      activeTab: "Visualization Agent" /* Or keep Schema Loader if preferred */,
-    },
+    admin: { ...initialRoleSpecificProcessingState ,activeTab: "Schema Loader" },
+    user: { ...initialRoleSpecificProcessingState, activeTab: "Visualization Agent" /* Or keep Schema Loader if preferred */ },
   });
 
   useEffect(() => {
@@ -66,10 +61,10 @@ const MainContent = ({
   }, [autoRun, query, setAutoRun, language, role]);
 
   const handleSetActiveTab = (tabName) => {
-    const currentRole = role;
-    setAllRolesData((prev) => ({
+    const currentRole = role; 
+    setAllRolesData(prev => ({
       ...prev,
-      [currentRole]: { ...prev[currentRole], activeTab: tabName },
+      [currentRole]: { ...prev[currentRole], activeTab: tabName }
     }));
   };
 
@@ -84,6 +79,7 @@ const MainContent = ({
   //   // setTotalExecutionTime(null);
   //   // setInsights("");
   //   // setInsightsLoading(true);
+
 
   //   setAllRolesData(prev => ({
   //     ...prev,
@@ -185,23 +181,24 @@ const MainContent = ({
   //   }
   // };
 
+
   const handleProcess = async () => {
     // 1. Set initial "loading" state and clear any previous error message
-    setAllRolesData((prev) => ({
+    setAllRolesData(prev => ({
       ...prev,
       [role]: {
         ...initialRoleSpecificProcessingState, // Reset to base state for this role
         isLoading: true,
         insightsLoading: true, // Assume insights will be fetched initially
-        activeTab: role === "user" ? "Visualization Agent" : "Schema Loader",
+        activeTab: (role === 'user' ? "Visualization Agent" : "Schema Loader"),
         errorMessage: "", // Clear previous error message for this role
-      },
+      }
     }));
     setHasProcessed(true); // Signal that processing has been attempted
-
+  
     const headers = { "Content-Type": "application/json" };
     const payload = { query: query.trim() };
-
+  
     try {
       // 2. Make the main API call
       const response = await axios.post(
@@ -209,7 +206,7 @@ const MainContent = ({
         payload,
         { headers }
       );
-
+  
       // 3. Check response status
       if (response.status === 200) {
         const {
@@ -220,19 +217,15 @@ const MainContent = ({
           suggested_visualization,
           error: backendError, // Destructure the 'error' field from response.data
         } = response.data;
-
+  
         // 3a. Handle if the backend explicitly reports an error
-        if (
-          backendError &&
-          backendError !== "null" &&
-          String(backendError).trim() !== ""
-        ) {
+        if (backendError && backendError !== 'null' && String(backendError).trim() !== '') {
           // Backend indicated an error. Display the translated 'warning' message.
-          setAllRolesData((prev) => ({
+          setAllRolesData(prev => ({
             ...prev,
             [role]: {
               ...prev[role], // Keep some state like activeTab
-              errorMessage: t("warning"), // Use your translated "warning" message
+              errorMessage: t('warning'), // Use your translated "warning" message
               queryResult: [], // Clear potentially partial results
               loadedTabs: [],
               insights: "",
@@ -241,150 +234,117 @@ const MainContent = ({
               totalExecutionTime: null,
               isLoading: false, // Stop loading, as we've processed the error
               insightsLoading: false,
-            },
+            }
           }));
           // setHasProcessed(false); // Optional: if a backend error means not truly "processed"
           return; // Stop further processing (like fetching insights)
         }
-
+  
         // 3b. No backend-reported error, proceed with processing successful data
         const newTabs = (processing_steps || []).map((step) => ({
           name: step.agent,
           executionTime: step.time_taken?.toFixed(2) || "N/A",
         }));
-
-        setAllRolesData((prev) => ({
+  
+        setAllRolesData(prev => ({
           ...prev,
           [role]: {
             ...prev[role], // Preserve current role's state (like isLoading, insightsLoading, initial activeTab)
             queryResult: result_data || [],
-            totalExecutionTime: total_time_seconds
-              ? total_time_seconds.toFixed(2)
-              : null,
+            totalExecutionTime: total_time_seconds ? total_time_seconds.toFixed(2) : null,
             sqlQuery: sql_query || "",
             suggestedVisualization: suggested_visualization || "",
             loadedTabs: newTabs,
-            activeTab:
-              newTabs.length > 0 ? newTabs[0].name : prev[role].activeTab,
+            activeTab: newTabs.length > 0 ? newTabs[0].name : prev[role].activeTab,
             errorMessage: "", // Clear any error message on success
-          },
+          }
         }));
-
+  
         // Query History Logic
         if (query.trim()) {
-          const roleKey =
-            role === "admin" ? "adminQueryHistory" : "userQueryHistory";
-          const existingHistory = JSON.parse(
-            localStorage.getItem(roleKey) || "[]"
-          );
+          const roleKey = role === "admin" ? "adminQueryHistory" : "userQueryHistory";
+          const existingHistory = JSON.parse(localStorage.getItem(roleKey) || "[]");
           if (!existingHistory.includes(query.trim())) {
             const updatedHistory = [...existingHistory, query.trim()];
             localStorage.setItem(roleKey, JSON.stringify(updatedHistory));
-            if (setQueryHistory && typeof setQueryHistory === "function") {
+            if (setQueryHistory && typeof setQueryHistory === 'function') {
               setQueryHistory(updatedHistory);
             }
           }
         }
-
+  
         // 4. Fetch insights ONLY if the main process was successful and had no backend-reported error
         await new Promise((resolve) => setTimeout(resolve, 500)); // Optional delay
         try {
           const insightsResponse = await axios.get(
             "http://127.0.0.1:8000/summary-insights/english" // Adjust URL if necessary
           );
-          setAllRolesData((prev) => ({
+          setAllRolesData(prev => ({
             ...prev,
             [role]: {
               ...prev[role],
-              insights:
-                insightsResponse.status === 200 &&
-                insightsResponse.data.summary_insights
-                  ? insightsResponse.data.summary_insights
-                  : t("noInsightsReturned", "⚠️ No insights returned."), // Use a translatable key
-            },
+              insights: (insightsResponse.status === 200 && insightsResponse.data.summary_insights)
+                          ? insightsResponse.data.summary_insights
+                          : t('noInsightsReturned', "⚠️ No insights returned."), // Use a translatable key
+            }
           }));
         } catch (insightsErr) {
-          console.error(
-            "Error fetching insights:",
-            insightsErr.response?.data || insightsErr.message
-          );
-          setAllRolesData((prev) => ({
+          console.error("Error fetching insights:", insightsErr.response?.data || insightsErr.message);
+          setAllRolesData(prev => ({
             ...prev,
-            [role]: {
-              ...prev[role],
-              insights: t("errorLoadingInsights", "Error loading insights."),
-            }, // Use a translatable key
+            [role]: { ...prev[role], insights: t('errorLoadingInsights', "Error loading insights.") } // Use a translatable key
           }));
         }
+  
       } else {
         // Handle cases where response.status is not 200 (e.g., 400, 404 from main API)
         // Axios usually throws an error for non-2xx statuses, which would be caught by the outer catch block.
-        console.error(
-          "Non-200 response from backend:",
-          response.status,
-          response.data
-        );
-        setAllRolesData((prev) => ({
+        console.error("Non-200 response from backend:", response.status, response.data);
+        setAllRolesData(prev => ({
           ...prev,
           [role]: {
             ...initialRoleSpecificProcessingState, // Reset state
-            activeTab:
-              role === "user" ? "Visualization Agent" : "Schema Loader",
+            activeTab: (role === 'user' ? "Visualization Agent" : "Schema Loader"),
             isLoading: false,
             insightsLoading: false,
-            errorMessage: t(
-              "serverErrorWithStatus",
-              `Server error: ${response.status}. Please try again.`,
-              { status: response.status }
-            ),
-          },
+            errorMessage: t('serverErrorWithStatus', `Server error: ${response.status}. Please try again.`, { status: response.status }),
+          }
         }));
         setHasProcessed(false); // Query did not process successfully
       }
     } catch (networkError) {
       // Handle network errors or errors thrown by axios (e.g., server unreachable, 5xx status)
-      console.error(
-        "Network or Axios error during query processing:",
-        networkError.response?.data || networkError.message
-      );
+      console.error("Network or Axios error during query processing:", networkError.response?.data || networkError.message);
       const status = networkError.response?.status;
-      let userMessage = t(
-        "networkError.default",
-        "A network error occurred. Please try again."
-      ); // Default network error
+      let userMessage = t('networkError.default', "A network error occurred. Please try again."); // Default network error
       if (status) {
-        // Provide a more specific message if status is available
-        userMessage = t(
-          "networkError.withStatus",
-          `The server responded with an error (Status: {{status}}). Please try again.`,
-          { status }
-        );
+          // Provide a more specific message if status is available
+          userMessage = t('networkError.withStatus', `The server responded with an error (Status: {{status}}). Please try again.`, { status });
       }
-
-      setAllRolesData((prev) => ({
+  
+      setAllRolesData(prev => ({
         ...prev,
         [role]: {
           ...initialRoleSpecificProcessingState, // Reset state
-          activeTab: role === "user" ? "Visualization Agent" : "Schema Loader",
+          activeTab: (role === 'user' ? "Visualization Agent" : "Schema Loader"),
           isLoading: false,
           insightsLoading: false,
           errorMessage: userMessage,
-        },
+        }
       }));
       setHasProcessed(false); // Query did not process successfully
     } finally {
       // 6. Final cleanup for loading states and ensuring user's active tab (always runs)
-      setAllRolesData((prev) => {
-        const currentRoleState =
-          prev[role] || initialRoleSpecificProcessingState;
+      setAllRolesData(prev => {
+        const currentRoleState = prev[role] || initialRoleSpecificProcessingState;
         let finalActiveTab = currentRoleState.activeTab;
-
-        if (role === "user") {
+  
+        if (role === 'user') {
           // If processing was successful (no error message set) or if it's just loading, stick to VA.
           // If there was an error, it might have reset activeTab, so this ensures VA is the default.
           finalActiveTab = "Visualization Agent";
         }
-
+  
         return {
           ...prev,
           [role]: {
@@ -392,7 +352,7 @@ const MainContent = ({
             isLoading: false,
             insightsLoading: false,
             activeTab: finalActiveTab,
-          },
+          }
         };
       });
     }
@@ -485,7 +445,7 @@ const MainContent = ({
             gap: "0.5rem",
           }}
         >
-          {t("fetching")}...
+          {t('fetching')}...
           <CgSpinner className="animate-spin" style={{ fontSize: "1.2rem" }} />
         </div>
       )}
@@ -495,7 +455,7 @@ const MainContent = ({
           <div
             style={{ color: "#b58932", marginTop: "1rem", fontWeight: "bold" }}
           >
-            ⚠️ {allRolesData[role].errorMessage}
+           ⚠️ {allRolesData[role].errorMessage}
           </div>
         )}
       </div>
@@ -527,35 +487,42 @@ const MainContent = ({
             </p>
           )}
           <div className="relative border-b border-gray-300 flex space-x-6 pb-2">
-            {(role === "admin" ? loadedTabs : userTabs).map((tab) => {
-              // Conditionally override tab name for user role
-              const translatedTabName =
-                role === "user" && tab.name === "Visualization Agent"
-                  ? t("Query Output") // Custom label for user
-                  : t(`tabs.${tab.name}`);
-
-              return (
+            {role === "admin" &&
+              (allRolesData[role]?.loadedTabs || []).map((tab) => (
                 <button
                   key={tab.name}
-                  onClick={() => setActiveTab(tab.name)}
-                  disabled={role === "admin" ? !tab.executionTime : false}
+                  onClick={() => handleSetActiveTab(tab.name)}
+                  disabled={!tab.executionTime}
                   className={`text-sm font-medium pb-2 transition border-b-2 ${
-                    activeTab === tab.name
+                    allRolesData[role].activeTab === tab.name
                       ? "border-orange-500 text-orange-600"
                       : "text-gray-600 hover:text-orange-500 border-transparent hover:border-orange-300"
                   } ${
-                    role === "admin" && !tab.executionTime
-                      ? "text-gray-400 cursor-not-allowed"
-                      : ""
+                    !tab.executionTime ? "text-gray-400 cursor-not-allowed" : ""
                   }`}
                 >
-                  {translatedTabName}
-                  {role === "admin" &&
-                    tab.executionTime &&
-                    `(${tab.executionTime}s)`}
+                  {/* {tab.name} ({tab.executionTime}s) */}
+                  {t(`tabs.${tab.name}`)} ({tab.executionTime}s)
                 </button>
-              );
-            })}
+              ))}
+            {role === "user" &&
+              userTabs.map((tab) => (
+                <button
+                  key={tab.name}
+                  onClick={() => handleSetActiveTab(tab.name)}
+                  disabled={!tab.executionTime}
+                  className={`text-sm font-medium pb-2 transition border-b-2 ${
+                    allRolesData[role].activeTab === tab.name
+                      ? "border-orange-500 text-orange-600"
+                      : "text-gray-600 hover:text-orange-500 border-transparent hover:border-orange-300"
+                  } ${
+                    !tab.executionTime ? "text-gray-400 cursor-not-allowed" : ""
+                  }`}
+                >
+                  {/* {tab.name} ({tab.executionTime}s) */}
+                  {t(`tabs.${tab.name}`)} ({tab.executionTime}s)
+                </button>
+              ))}
           </div>
 
           <TabsContent
