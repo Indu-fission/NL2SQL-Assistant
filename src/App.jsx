@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { AppContext } from "./Components/context/AppContext";
 
 function App() {
-  const [query, setQuery] = useState("");
+  // const [query, setQuery] = useState("");
   const [resultData, setResultData] = useState([]);
   const [visualizationType, setVisualizationType] = useState("Table");
   const [role, setRole] = useState("admin");
@@ -23,8 +23,29 @@ function App() {
   const { i18n } = useTranslation();
   const selectedLanguage = i18n.language;
 
+  const [viewQueries, setViewQueries] = useState({ admin: "", user: "" });
+  const currentQueryForRole = viewQueries[role] || "";
+  const [viewHasProcessed, setViewHasProcessed] = useState({ admin: false, user: false });
+
+  const currentQuery = viewQueries[role] || ""; // Ensure currentQuery is always a string
+//  const setCurrentQuery = (newQuery) => {
+//   setViewQueries(prev => ({ ...prev, [role]: newQuery }));
+// };
+const setCurrentQueryForRole = (newQueryText) => {
+  setViewQueries(prev => ({ ...prev, [role]: newQueryText }));
+};
+
+  // Helper to get/set hasProcessed for the current role
+  const currentHasProcessed = viewHasProcessed[role] || false;
+  const setCurrentHasProcessed = (processedStatus) => {
+    setViewHasProcessed(prev => ({ ...prev, [role]: processedStatus }));
+  };
+
+// Helper to get/set query for the current role
+
   const handleProcessFromSidebar = (selectedQuery) => {
-    setQuery(selectedQuery);
+    // setQuery(selectedQuery);
+    setCurrentQuery(selectedQuery);
     setTimeout(() => {
       setAutoRun(true);
     }, 0);
@@ -38,11 +59,12 @@ function App() {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   const handleAdminToggle = (newMode) => {
-    setRole(newMode ? "admin" : "user");
+    const newRoleForToggle = newMode ? "admin" : "user"; // Define the new role explicitly
+    setRole(newRoleForToggle);                             // Update the role state
     setIsAdmin(newMode);
-    setHasProcessed(false); // Reset when switching roles
   };
-  const handleQuerySubmit = async () => {
+
+    const handleQuerySubmit = async () => {
     await new Promise((r) => setTimeout(r, 1500));
     setResultData([
       { Name: "Alice", Age: 28 },
@@ -57,7 +79,8 @@ function App() {
       localStorage.setItem("queryHistory", JSON.stringify(updated));
     }
 
-    setQuery("");
+    // setQuery("");
+    setCurrentQuery("");
     setResultData([]);
   };
 
@@ -84,8 +107,8 @@ function App() {
             }`}
           >
             <MainContent
-              query={query}
-              setQuery={setQuery}
+              query={currentQueryForRole}
+              setQuery={setCurrentQueryForRole}
               onSubmit={handleQuerySubmit}
               onClear={handleClearResults}
               isSidebarOpen={sidebarOpen}
@@ -94,8 +117,9 @@ function App() {
               setAutoRun={setAutoRun}
               language={selectedLanguage}
               isAdmin={isAdmin}
-              hasProcessed={hasProcessed} // ✅ pass down
-              setHasProcessed={setHasProcessed}
+              hasProcessed={currentHasProcessed} // ✅ pass down
+              setHasProcessed={setCurrentHasProcessed}
+              role={role}
             />
           </main>
         </div>

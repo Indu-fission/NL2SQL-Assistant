@@ -57,7 +57,21 @@
     "csv":"Download as CSV",
     "Downloading Excel":"Downloading Excel",
     "excel":
-    "Download as Excel"
+    "Download as Excel",
+
+
+
+    "tabs": {
+    "Schema Loader": "Schema Loader",
+    "Selector Agent": "Selector Agent",
+    "Decomposer Agent": "Decomposer Agent",
+    "Refiner Agent": "Refiner Agent",
+    "Database Execution": "Database Execution",
+    "Visualization Agent":"Visualization Agent",
+
+    "fetching":" Crafting your SQL... please hold on",
+    "warning":" Could you try rephrasing your input"
+  }
   
   }
   

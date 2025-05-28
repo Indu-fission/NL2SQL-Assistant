@@ -150,11 +150,22 @@ const TabsContent = ({
 
   useEffect(() => {
     const fetchTabData = async () => {
-      if (!hasProcessed) return; // ⛔️ Skip fetching until processed
+      if (!hasProcessed)  {
+        setTabData(null); // Clear any potentially stale tab specific data
+        return;
+      } 
+
+      setTabData(null);
 
       let url = "";
       let isDatabaseExecution = false;
-      setTabData(null);
+
+      if (role === 'user' && activeTab === "Visualization Agent") {
+        // For the user's view of this tab, data (queryResult, insights) comes from props.
+        // No separate fetch needed here for tabData. tabData will remain null.
+        return;
+      }
+  
 
       if (activeTab === "Schema Loader") url = "http://localhost:8000/schema";
       else if (activeTab === "Selector Agent")
@@ -223,10 +234,14 @@ const TabsContent = ({
     };
 
     // ✅ Call fetch only if tab is active and processing is complete
-    if (activeTab && hasProcessed) {
+    if (activeTab) {
       fetchTabData();
+    }else {
+      // No active tab, so no specific tab data to load/show
+      setTabData(null);
     }
-  }, [activeTab, language, hasProcessed]); // ✅ Include hasProcessed
+    
+  }, [activeTab, language, hasProcessed,role]); // ✅ Include hasProcessed
 
   // CopyButton component (can be defined once, outside TabsContent or at the top level of the file)
   const CopyButton = ({ textToCopy, onCopied }) => {
@@ -605,7 +620,7 @@ const TabsContent = ({
             !isAdmi &&
             !tabData && (
               <p className="mt-4 text-gray-600">
-                Processing visualization data or no results to display yet...
+                Processing visualization data...
               </p>
             )
           )}

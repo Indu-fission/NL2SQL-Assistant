@@ -59,7 +59,22 @@
     "Downloading CSV":"تنزيل ملف CSV",
     "csv":"تنزيل بصيغة CSV",
     "Downloading Excel":"تحميل اكسل",
-    "excel":"تنزيل بصيغة Excel"
+    "excel":"تنزيل بصيغة Excel",
+
+    "tabs": {
+    "Schema Loader": "محمل المخطط",
+    "Selector Agent": "وكيل التحديد",
+    "Decomposer Agent": "عامل التحلل",
+    "Refiner Agent": "وكيل التكرير",
+    "Database Execution": "تنفيذ قاعدة البيانات",
+    "Visualization Agent":"وكيل التصور",
+
+    "fetching":"جاري صياغة SQL الخاص بك... الرجاء الانتظار",
+    "warning":"⚠️ هل يمكنك أن تحاول إعادة صياغة مدخلاتك؟"
+
+
+  }
+
    
   
   }
