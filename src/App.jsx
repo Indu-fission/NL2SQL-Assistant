@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { AppContext } from "./Components/context/AppContext";
 
 function App() {
-  // const [query, setQuery] = useState("");
+  const [query, setQuery] = useState("");
   const [resultData, setResultData] = useState([]);
   const [visualizationType, setVisualizationType] = useState("Table");
   const [role, setRole] = useState("admin");
@@ -35,6 +35,11 @@ const setCurrentQueryForRole = (newQueryText) => {
   setViewQueries(prev => ({ ...prev, [role]: newQueryText }));
 };
 
+const handleProcessFromSidebar = (selectedQuery) => {
+  setQuery(selectedQuery);
+  setAutoRun(true); // flag to run processQuery automatically
+};
+
   // Helper to get/set hasProcessed for the current role
   const currentHasProcessed = viewHasProcessed[role] || false;
   const setCurrentHasProcessed = (processedStatus) => {
@@ -43,13 +48,13 @@ const setCurrentQueryForRole = (newQueryText) => {
 
 // Helper to get/set query for the current role
 
-  const handleProcessFromSidebar = (selectedQuery) => {
-    // setQuery(selectedQuery);
-    setCurrentQuery(selectedQuery);
-    setTimeout(() => {
-      setAutoRun(true);
-    }, 0);
-  };
+  // const handleProcessFromSidebar = (selectedQuery) => {
+  //   // setQuery(selectedQuery);
+  //   setCurrentQuery(selectedQuery);
+  //   setTimeout(() => {
+  //     setAutoRun(true);
+  //   }, 0);
+  // };
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("queryHistory") || "[]");
@@ -89,9 +94,9 @@ const setCurrentQueryForRole = (newQueryText) => {
       <div className="flex h-screen bg-white">
         <Sidebar
           isOpen={sidebarOpen}
-          queryHistory={queryHistory}
+           queryHistory={queryHistory}
           setQueryHistory={setQueryHistory}
-          handleProcess={handleProcessFromSidebar}
+        handleProcess={handleProcessFromSidebar}
         />
 
         <div className="flex-1 relative">
@@ -107,8 +112,10 @@ const setCurrentQueryForRole = (newQueryText) => {
             }`}
           >
             <MainContent
-              query={currentQueryForRole}
-              setQuery={setCurrentQueryForRole}
+              // query={currentQueryForRole}
+              // setQuery={setCurrentQueryForRole}
+              query={query}
+  setQuery={setQuery}
               onSubmit={handleQuerySubmit}
               onClear={handleClearResults}
               isSidebarOpen={sidebarOpen}

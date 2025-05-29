@@ -27,7 +27,10 @@
     "frmater":"Generates clean SQLite SQL",
     "Visualization Agent":"Visualization Agent",
     "fimater":"Suggests charts",
-  
+    
+    "fetching":" Crafting your SQL... please hold on",
+    "warning":" Could you try rephrasing your input",
+   "output":"Query Output",
   
     "status": "Status",
     "details": "Details",
@@ -67,10 +70,8 @@
     "Decomposer Agent": "Decomposer Agent",
     "Refiner Agent": "Refiner Agent",
     "Database Execution": "Database Execution",
-    "Visualization Agent":"Visualization Agent",
+    "Visualization Agent":"Visualization Agent"
 
-    "fetching":" Crafting your SQL... please hold on",
-    "warning":" Could you try rephrasing your input"
   }
   
   }
