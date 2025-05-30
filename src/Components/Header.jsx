@@ -1,102 +1,10 @@
-// import React, { useState, useRef, useEffect,useContext } from "react";
-// import { useTranslation } from 'react-i18next';
-// import logoRight from "../../public/FCSCLogo.svg";
-// import logoLeft from "../../public/MOCA Eng Logo-01.svg";
-// import UpdatedUILeftLogo from "../../public/UpdatedUILeftLogo.svg";
-// import UpdatedUIRightLogo from "../../public/UpdatedUIRightLogo.svg";
-// import languageIcon from "../../public/language icon.png";
-// import { AppContext } from "./context/AppContext";
-
-
-
-// export default function Header({ toggleSidebar, isAdmin, setIsAdmin }) {
-//   const { i18n } = useTranslation();
-//   const [showDropdown, setShowDropdown] = useState(false);
-//   const {setRole}=useContext(AppContext)
-
-//   const dropdownRef = useRef(null);
-
-//   const handleLanguageClick = () => setShowDropdown((prev) => !prev);
-
-//   const handleLanguageChange = (lang) => {
-//     i18n.changeLanguage(lang);
-//     setShowDropdown(false);
-//   };
-// const handleToggle = () => {
-//   const newMode = !isAdmin;
-//   setIsAdmin(newMode);  // calls the handler from App that updates both role and isAdmin
-// };
-
-
-//   useEffect(() => {
-//     const handleClickOutside = (event) => {
-//       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-//         setShowDropdown(false);
-//       }
-//     };
-//     document.addEventListener("mousedown", handleClickOutside);
-//     return () => document.removeEventListener("mousedown", handleClickOutside);
-//   }, []);
-
-//   return (
-//     <header className="flex items-center justify-between p-4 border-b border-gray-300 bg-white fixed w-full h-20 top-0 left-0 z-20">
-//       <div className="flex items-center space-x-4 md:space-x-6">
-//         <button onClick={toggleSidebar} aria-label="Toggle Sidebar" className="text-2xl focus:outline-none">
-//           &#9776;
-//         </button>
-
-//         <img src={UpdatedUILeftLogo} alt="Left Logo" className="max-h-12 md:max-h-16 lg:max-h-24" style={{ maxWidth: "170px", width: "170px" }} />
-//         <h1 className="text-xl md:text-2xl font-semibold whitespace-nowrap" style={{ color: "#b58932" }}>
-//           NL2SQL Assistant
-//         </h1>
-//       </div>
-
-//       <div className="flex items-center space-x-4 relative" ref={dropdownRef}>
-//         {/* Admin/User Toggle */}
-//         <div className="flex items-center space-x-2">
-//           <span className={`text-sm font-medium ${!isAdmin ? 'text-gray-900' : 'text-gray-400'}`}>User</span>
-
-//           <button
-//             onClick={handleToggle}
-//             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${isAdmin
-//                 ? 'bg-[#b58932] focus:ring-[#b58932]'
-//                 : 'bg-[#b58932] focus:ring-[#b58932]' // vibrant blue for user
-//               }`}
-//           >
-//             <span
-//               className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isAdmin ? 'translate-x-6' : 'translate-x-1'
-//                 }`}
-//             />
-//           </button>
-
-//           <span className={`text-sm font-medium ${isAdmin ? 'text-gray-900' : 'text-gray-400'}`}>Admin</span>
-//         </div>
-
-//         {/* Language Selector */}
-//         <div className="relative">
-//           <img src={languageIcon} alt="Language" onClick={handleLanguageClick} className="cursor-pointer w-6 h-6" />
-//           {showDropdown && (
-//             <div className="absolute left-1/2 top-full mt-2 transform -translate-x-1/2 bg-white border border-gray-300 shadow-md rounded-md z-10">
-//               <ul className="text-sm">
-//                 <li onClick={() => handleLanguageChange('en')} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">English</li>
-//                 <li onClick={() => handleLanguageChange('ar')} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Arabic</li>
-//               </ul>
-//             </div>
-//           )}
-//         </div>
-
-//         <img src={UpdatedUIRightLogo} alt="Right Logo" className="max-h-12 md:max-h-16 lg:max-h-20" style={{ maxWidth: "170px", width: "170px" }} />
-//       </div>
-//     </header>
-//   );
-// }
 
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { useTranslation } from 'react-i18next';
 import UpdatedUILeftLogo from "../../public/UpdatedUILeftLogo.svg"; // Ensure path is correct
 import UpdatedUIRightLogo from "../../public/UpdatedUIRightLogo.svg"; // Ensure path is correct
 import { AppContext } from "./context/AppContext"; // Ensure path is correct
-import { FiInfo, FiDatabase, FiUploadCloud, FiClock, FiChevronDown, FiGlobe, FiCopy, FiX } from 'react-icons/fi';
+import { FiInfo, FiDatabase, FiUploadCloud, FiClock, FiChevronDown, FiGlobe, FiCopy, FiX, FiUser, FiMenu } from 'react-icons/fi';
 import { HiChevronRight, HiChevronDown as HiChevronDownSolid } from "react-icons/hi";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
@@ -105,6 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 export default function Header({ isAdmin, setIsAdmin, handleProcess }) {
   const { i18n, t } = useTranslation();
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const headerRef = useRef(null);
   let hoverTimeout = null;
@@ -188,7 +97,7 @@ export default function Header({ isAdmin, setIsAdmin, handleProcess }) {
     }
     if (allSucceeded) await fetchSchema();
   };
-  
+
   const handleFileChangeEv = (e) => { if (e.target.files.length > 0) handleActualFileUpload(e.target.files); if (fileInputRef.current) fileInputRef.current.value = ""; };
   const handleFileDropEv = (e) => { e.preventDefault(); if (e.dataTransfer.files.length > 0) handleActualFileUpload(e.dataTransfer.files); };
   const handleDragOverEv = (e) => e.preventDefault();
@@ -210,10 +119,24 @@ export default function Header({ isAdmin, setIsAdmin, handleProcess }) {
   const handleNavItemMouseLeave = () => { hoverTimeout = setTimeout(() => setActiveDropdown(null), 200); };
   const handleDropdownInteractionEnter = () => clearTimeout(hoverTimeout);
   const handleNavItemClick = (dropdownId) => setActiveDropdown(activeDropdown === dropdownId ? null : dropdownId);
-  const handleAdminToggle = () => { setIsAdmin(!isAdmin); setActiveDropdown(null); };
-  const handleLanguageClick = () => setActiveDropdown(activeDropdown === 'language' ? null : 'language');
-  const handleLanguageChange = (lang) => { i18n.changeLanguage(lang); setActiveDropdown(null); };
   
+  // Updated functions for user/admin dropdown
+  const handleUserRoleClick = () => setActiveDropdown(activeDropdown === 'userRole' ? null : 'userRole');
+  const handleRoleChange = (newRole) => {
+    const newIsAdmin = newRole === 'admin';
+    setIsAdmin(newIsAdmin);
+    setActiveDropdown(null);
+    setMobileMenuOpen(false);
+  };
+
+  const handleLanguageClick = () => setActiveDropdown(activeDropdown === 'language' ? null : 'language');
+  const handleLanguageChange = (lang) => { i18n.changeLanguage(lang); setActiveDropdown(null); setMobileMenuOpen(false); };
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+    if (activeDropdown) setActiveDropdown(null);
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => { if (headerRef.current && !headerRef.current.contains(event.target)) setActiveDropdown(null); };
     document.addEventListener("mousedown", handleClickOutside);
@@ -222,59 +145,19 @@ export default function Header({ isAdmin, setIsAdmin, handleProcess }) {
 
   const navItemsDefinition = [
     {
-      id: "history",
-      title: t("Query History"),
-      icon: <FiClock size={22} />,
-      adminOnly: false,
-      isClickTriggered: true,
-      isIconOnly: true,
+      id: 'history', title: t('History'), icon: <FiClock size={22} />, adminOnly: false, isClickTriggered: true,
       content: (
         <div className="p-4 text-sm">
           {queryHistory.length === 0 ? (
-            <p className="text-center text-slate-400 py-4">
-              {t("No query history found.")}
-            </p>
+            <p className="text-center text-white py-4">{t('No query history found.')}</p>
           ) : (
-            // <div className="space-y-2.5">
-            //   {[...queryHistory].reverse().map((item, index) => (
-            //     <div key={index} onClick={() => { if (handleProcess) handleProcess(item); setActiveDropdown(null); }}
-            //          className="cursor-pointer rounded-lg border border-slate-700 p-3 hover:bg-slate-700 hover:border-sky-600 transition-colors group flex justify-between items-start shadow-sm">
-            //       <span className="text-slate-300 group-hover:text-sky-300 text-xs break-words mr-2">{item}</span>
-            //       <button onClick={(e) => { e.stopPropagation(); handleRemoveQueryHistoryItem(index); }}
-            //               className="text-slate-500 hover:text-red-400 p-0.5" title={t("Delete query")}> <FiX size={16}/> </button>
-            //     </div>
-            //   ))}
-            // </div>
-            <div
-              className={`space-y-2.5 ${
-                queryHistory.length > 3
-                  ? "max-h-96 overflow-y-auto custom-scrollbar pr-1.5"
-                  : ""
-              }`}
-            >
+            <div className="space-y-2.5">
               {[...queryHistory].reverse().map((item, index) => (
-                <div
-                  key={index}
-                  onClick={() => {
-                    if (handleProcess) handleProcess(item);
-                    setActiveDropdown(null);
-                  }}
-                  className="cursor-pointer rounded-lg border border-gray-300 p-3 hover:bg-gray-200 transition-colors group flex justify-between items-start shadow-sm"
-                >
-                  <span className="text-gray-800 group-hover:text-sky-700 text-xs break-words mr-2">
-                    {item}
-                  </span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemoveQueryHistoryItem(index);
-                    }}
-                    className="text-gray-500 hover:text-red-600 p-0.5"
-                    title={t("Delete query")}
-                  >
-                    {" "}
-                    <FiX size={16} />{" "}
-                  </button>
+                <div key={index} onClick={() => { if (handleProcess) handleProcess(item); setActiveDropdown(null); setMobileMenuOpen(false); }}
+                     className="cursor-pointer rounded-lg border border-slate-500 p-3 hover:bg-slate-700 hover:border-sky-300 transition-colors group flex justify-between items-start shadow-sm">
+                  <span className="text-white group-hover:text-white text-xs break-words mr-2">{item}</span>
+                  <button onClick={(e) => { e.stopPropagation(); handleRemoveQueryHistoryItem(index); }}
+                          className="text-white hover:text-red-400 p-0.5" title={t("Delete query")}> <FiX size={16}/> </button>
                 </div>
               ))}
             </div>
@@ -283,98 +166,43 @@ export default function Header({ isAdmin, setIsAdmin, handleProcess }) {
       ),
     },
     {
-      id: "about",
-      title: t("About"),
-      icon: <FiInfo size={18} />,
-      adminOnly: true,
+      id: 'about', title: t('About'), icon: <FiInfo size={18} />, adminOnly: true,
       content: (
         <div className="p-4 text-sm text-slate-300 space-y-3 leading-relaxed">
-          <p className="text-slate-200">{t("matter")}</p>
+          <p className="text-slate-200">{t('matter')}</p>
           <ul className="list-disc ml-5 space-y-2 text-slate-300">
-            <li>
-              <strong className="text-slate-100">{t("Schema Loader")}:</strong>{" "}
-              {t("fmater")}
-            </li>
-            <li>
-              <strong className="text-slate-100">{t("Selector Agent")}:</strong>{" "}
-              {t("smater")}
-            </li>
-            <li>
-              <strong className="text-slate-100">
-                {t("Decomposer Agent")}:
-              </strong>{" "}
-              {t("tmater")}
-            </li>
-            <li>
-              <strong className="text-slate-100">{t("Refiner Agent")}:</strong>{" "}
-              {t("frmater")}
-            </li>
-            <li>
-              <strong className="text-slate-100">
-                {t("Visualization Agent")}:
-              </strong>{" "}
-              {t("fimater")}
-            </li>
+            <li><strong className="text-slate-100">{t('Schema Loader')}:</strong> {t('fmater')}</li>
+            <li><strong className="text-slate-100">{t('Selector Agent')}:</strong> {t('smater')}</li>
+            <li><strong className="text-slate-100">{t('Decomposer Agent')}:</strong> {t('tmater')}</li>
+            <li><strong className="text-slate-100">{t('Refiner Agent')}:</strong> {t('frmater')}</li>
+            <li><strong className="text-slate-100">{t('Visualization Agent')}:</strong> {t('fimater')}</li>
           </ul>
         </div>
       ),
     },
     {
-      id: "dbStatus",
-      title: t("Database Status"),
-      icon: <FiDatabase size={18} />,
-      adminOnly: true,
+      id: 'dbStatus', title: t('Database Status'), icon: <FiDatabase size={18} />, adminOnly: true,
       content: (
         <div className="p-4 text-sm space-y-3.5">
           {isAdmin && schemaText && !loadingSchema && (
-            <div className="p-2.5 bg-sky-800 bg-opacity-50 text-sky-300 rounded-md text-center font-semibold shadow-sm">
-              {" "}
-              {t("schema loaded")}{" "}
-            </div>
+            <div className="p-2.5 bg-gray-600 bg-opacity-50 text-white rounded-md text-center font-semibold shadow-sm"> {t('schema loaded')} </div>
           )}
           {isAdmin && (
             <>
-              <div
-                className="flex justify-between items-center cursor-pointer group p-2.5 rounded-md hover:bg-slate-700 transition-colors"
-                onClick={() => setShowSchema(!showSchema)}
-              >
-                <span className="font-medium text-slate-300 group-hover:text-sky-400">
-                  {t("View Schema")}
-                </span>
-                <span className="text-sky-400 group-hover:text-sky-300">
-                  {" "}
-                  {showSchema ? (
-                    <HiChevronDownSolid size={20} />
-                  ) : (
-                    <HiChevronRight size={20} />
-                  )}
-                </span>
+              <div className="flex justify-between items-center cursor-pointer group p-2.5 rounded-md hover:bg-slate-700 transition-colors" onClick={() => setShowSchema(!showSchema)}>
+                <span className="font-medium text-white group-hoveZ:text-gray-400">{t('View Schema')}</span>
+                <span className="text-sky-400 group-hover:text-sky-300"> {showSchema ? <HiChevronDownSolid size={20}/> : <HiChevronRight size={20}/>}</span>
               </div>
               {showSchema && (
-                <div className="relative bg-slate-800 border border-slate-600 p-3.5 rounded-md max-h-52 overflow-y-auto custom-scrollbar shadow-inner">
+                <div className="relative bg-black/60 border border-slate-600 p-3.5 rounded-md max-h-52 overflow-y-auto custom-scrollbar shadow-inner">
                   <pre className="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed">
-                    {loadingSchema
-                      ? `🔄 ${t("Loading schema...")}`
-                      : schemaText}
+                    {loadingSchema ? `🔄 ${t("Loading schema...")}` : schemaText}
                   </pre>
-                  {!loadingSchema &&
-                    schemaText &&
-                    schemaText !== t("No schema found.") &&
-                    !schemaText.startsWith("❌") && (
-                      <button
-                        onClick={handleCopySchema}
-                        className="absolute top-2.5 right-2.5 text-sky-400 hover:text-sky-300 p-1.5 bg-slate-700 rounded-full shadow-sm"
-                        title={t("Copy Schema")}
-                      >
-                        {copiedSchema ? (
-                          <span className="text-xs text-green-400 px-1">
-                            {t("Copied!")}
-                          </span>
-                        ) : (
-                          <FiCopy size={14} />
-                        )}
-                      </button>
-                    )}
+                  {!loadingSchema && schemaText && schemaText !== t("No schema found.") && !schemaText.startsWith("❌") && (
+                    <button onClick={handleCopySchema} className="absolute top-2.5 right-2.5 text-sky-400 hover:text-sky-300 p-1.5 bg-slate-700 rounded-full shadow-sm" title={t("Copy Schema")}>
+                      {copiedSchema ? <span className="text-xs text-green-400 px-1">{t("Copied!")}</span> : <FiCopy size={14}/>}
+                    </button>
+                  )}
                 </div>
               )}
             </>
@@ -383,82 +211,42 @@ export default function Header({ isAdmin, setIsAdmin, handleProcess }) {
       ),
     },
     {
-      id: "upload",
-      title: t("Upload Files"),
-      icon: <FiUploadCloud size={18} />,
-      adminOnly: true,
+      id: 'upload', title: t('files'), icon: <FiUploadCloud size={18} />, adminOnly: true,
       content: (
         <div className="p-4 text-sm space-y-3.5">
           {isAdmin && (
             <>
-              <p className="text-slate-300">
-                {t("Upload CSV files to create tables.")}
-              </p>
-              <div
-                onDrop={handleFileDropEv}
-                onDragOver={handleDragOverEv}
-                onClick={() => fileInputRef.current?.click()}
-                className="p-6 rounded-lg text-center transition-all border-2 border-dashed border-slate-600 text-slate-400 bg-slate-800 cursor-pointer hover:border-sky-500 hover:bg-slate-700 shadow-sm"
-              >
-                <FiUploadCloud
-                  size={32}
-                  className="mx-auto mb-2.5 text-slate-500"
-                />
-                {t("Drag and drop files here, or click to browse")}
-                <p className="text-xs text-slate-500 mt-1.5">
-                  {t("Limit 200MB per file • CSV only")}
-                </p>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".csv"
-                  multiple
-                  onChange={handleFileChangeEv}
-                  className="hidden"
-                />
+              <p className="text-slate-300">{t('Upload CSV files to create tables.')}</p>
+              <div onDrop={handleFileDropEv} onDragOver={handleDragOverEv} onClick={() => fileInputRef.current?.click()}
+                   className="p-6 rounded-lg text-center transition-all border-2 border-dashed border-slate-600 text-slate-400 bg-black/60 cursor-pointer hover:border-sky-500 hover:bg-slate-700 shadow-sm">
+                <FiUploadCloud size={32} className="mx-auto mb-2.5 text-slate-500"/>
+                {t('Drag and drop files here, or click to browse')}
+                <p className="text-xs text-slate-500 mt-1.5">{t('Limit 200MB per file • CSV only')}</p>
+                <input ref={fileInputRef} type="file" accept=".csv" multiple onChange={handleFileChangeEv} className="hidden"/>
               </div>
               {uploadedFiles.length > 0 && (
                 <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-1.5">
-                  <h4 className="text-xs font-semibold text-slate-400 mb-1">
-                    {t("Files ready for upload:")}
-                  </h4>
+                  <h4 className="text-xs font-semibold text-slate-400 mb-1">{t("Files ready for upload:")}</h4>
                   {uploadedFiles.map((file) => (
-                    <div
-                      key={file.name}
-                      className="flex items-center justify-between bg-slate-700 p-2.5 rounded-md text-xs shadow-sm"
-                    >
-                      <span
-                        className="truncate max-w-xs text-slate-300"
-                        title={file.name}
-                      >
-                        {file.name}
-                      </span>
-                      <button
-                        onClick={() => handleRemoveFile(file.name)}
-                        className="text-red-500 hover:text-red-400 ml-2"
-                        title={t("Remove file")}
-                      >
-                        <FiX size={16} />
-                      </button>
+                    <div key={file.name} className="flex items-center justify-between border border-slate-700 p-2.5 rounded-md text-xs shadow-sm hover:bg-slate-700">
+                      <span className="truncate max-w-xs text-slate-300" title={file.name}>{file.name}</span>
+                      <button onClick={() => handleRemoveFile(file.name)} className="text-red-500 hover:text-red-400 ml-2" title={t("Remove file")}><FiX size={16}/></button>
                     </div>
                   ))}
                 </div>
               )}
               {filesToUpload.length > 0 && (
-                <button
-                  onClick={handleTableCreation}
-                  className="w-full px-4 py-2.5 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors shadow-md"
-                >
-                  {t("Create Table(s) from Selected Files")}
+                <button onClick={handleTableCreation} className="w-full px-4 py-2.5  text-white text-sm font-semibold rounded-lg hover:bg-slate-700 transition-colors shadow-md">
+                  {t('Create Table(s) from Selected Files')}
                 </button>
               )}
             </>
           )}
         </div>
       ),
-    },
+    }
   ];
-  
+
   const visibleNavItems = navItemsDefinition.filter(item => isAdmin || !item.adminOnly);
   const queryHistoryItem = visibleNavItems.find(item => item.isIconOnly);
   const otherNavItems = visibleNavItems.filter(item => !item.isIconOnly);
@@ -474,87 +262,116 @@ export default function Header({ isAdmin, setIsAdmin, handleProcess }) {
         .custom-scrollbar { scrollbar-width: thin; scrollbar-color: #475569 transparent; }
       `}</style>
 
-      {/* MODIFIED: Header background changed to bg-black/60 for a darker transparent look */}
-      <header ref={headerRef} className="bg-black/60 text-white fixed w-full top-0 left-0 z-40 shadow-xl">
-        <div className="flex items-center justify-between px-4 h-20"> {/* Main header bar content area */}
-          
-          {/* Left Group: Logo, QH Icon, and other Nav Items */}
-          <div className="flex items-center h-full"> {/* Ensure left group can define height for children */}
+      <header ref={headerRef} className="bg-[#374a66] text-white fixed w-full top-0 left-0 z-40 shadow-xl">
+        <div className="flex items-center justify-between px-4 h-24"> 
+          <div className="flex items-center h-full"> 
             <img src={UpdatedUILeftLogo} alt="Left Logo" className="h-11 md:h-12" />
             
-            {queryHistoryItem && (
-                 <div className="relative ml-4 h-full flex items-center"> {/* Wrapper takes full height & centers button */}
-                   <button
-                     onClick={() => handleNavItemClick(queryHistoryItem.id)}
-                     className="p-2.5 rounded-md hover:bg-slate-700 focus:outline-none transition-colors duration-150"
-                     title={queryHistoryItem.title}
-                   >
-                     <span className="text-white hover:text-orange-500 transition-colors duration-150">{queryHistoryItem.icon}</span>
-                   </button>
-                   {activeDropdown === queryHistoryItem.id && (
-                       <div 
-                           onMouseEnter={handleDropdownInteractionEnter} onMouseLeave={handleNavItemMouseLeave}
-                           // MODIFIED: Dropdown background changed to bg-black/60
-                           className="absolute top-full mt-0 left-0 w-80 md:w-96 bg-black/60 backdrop-blur-md rounded-xl shadow-2xl border border-slate-700 z-50 overflow-hidden"
-                       >
-                           {/* MODIFIED: Dropdown title background changed to bg-black/60 */}
-                           <h3 className="text-sm font-semibold text-slate-200 bg-black/60 px-4 py-3 border-b border-slate-700">{queryHistoryItem.title}</h3>
-                           <div className="custom-scrollbar overflow-y-auto max-h-[calc(80vh-10rem)]"> {/* Added max-h for scroll */}
-                               {queryHistoryItem.content}
-                           </div>
-                       </div>
-                   )}
-                 </div>
-            )}
+            {/* Mobile menu button - hidden on desktop */}
+            <button 
+              onClick={toggleMobileMenu}
+              className="ml-4 p-2 rounded-md hover:bg-slate-700 focus:outline-none transition-colors duration-150 md:hidden"
+              aria-label="Toggle menu"
+            >
+              <FiMenu size={24} className="text-white" />
+            </button>
 
-            <nav className="flex items-center space-x-1.5 lg:space-x-2 ml-2 h-full"> {/* Nav also takes full height */}
-                {otherNavItems.map((item) => (
-                <div
-                    key={item.id}
-                    className="relative group h-full flex items-center" // Wrapper takes full height & centers button
-                    onMouseEnter={() => handleNavItemMouseEnter(item.id)}
-                    onMouseLeave={handleNavItemMouseLeave}
-                >
-                    <button
-                    className="flex items-center px-3 py-2 rounded-md hover:bg-slate-700 focus:outline-none transition-colors duration-150"
-                    title={item.title}
-                    >
-                    <span className="text-white group-hover:text-orange-500 transition-colors duration-150">{item.icon}</span>
-                    <span className="ml-2 text-sm font-medium text-white group-hover:text-orange-500 transition-colors duration-150 hidden md:inline">{item.title}</span>
-                    </button>
-                    {activeDropdown === item.id && (
-                    <div 
-                        onMouseEnter={handleDropdownInteractionEnter} onMouseLeave={handleNavItemMouseLeave}
-                        // MODIFIED: Dropdown background changed to bg-black/60
-                        className="absolute top-full mt-0 left-1/2 transform -translate-x-1/2 w-80 md:w-96 bg-black/60 backdrop-blur-md rounded-xl shadow-2xl border border-slate-700 z-50 overflow-hidden"
-                    >
-                        {/* MODIFIED: Dropdown title background changed to bg-black/60 */}
-                        <h3 className="text-sm font-semibold text-slate-200 bg-black/60 px-4 py-3 border-b border-slate-700">{item.title}</h3>
-                        <div className="max-h-[calc(80vh-8rem)] overflow-y-auto custom-scrollbar">
-                            {item.content}
-                        </div>
-                    </div>
-                    )}
+            {/* Desktop navigation - hidden on mobile */}
+            <div className="hidden md:flex items-center h-full">
+              {queryHistoryItem && (
+                <div className="relative ml-4 h-full flex items-center"> 
+                  <button
+                    onClick={() => handleNavItemClick(queryHistoryItem.id)}
+                    className="p-2.5 rounded-md hover:bg-slate-700 focus:outline-none transition-colors duration-150"
+                    title={queryHistoryItem.title}
+                  >
+                    <span className="text-white hover:text-orange-500 transition-colors duration-150">{queryHistoryItem.icon}</span>
+                  </button>
+                  {activeDropdown === queryHistoryItem.id && (
+                      <div 
+                          onMouseEnter={handleDropdownInteractionEnter} onMouseLeave={handleNavItemMouseLeave}
+                          className="absolute top-full mt-0 left-0 w-80 md:w-96 bg-black/60 backdrop-blur-md rounded-xl shadow-2xl border border-slate-700 z-50 overflow-hidden"
+                      >
+                          <h3 className="text-sm font-semibold text-neutral-200 bg-black/60 px-4 py-3 border-b border-slate-700">{queryHistoryItem.title}</h3>
+                          <div className="custom-scrollbar overflow-y-auto max-h-[calc(80vh-10rem)]"> 
+                              {queryHistoryItem.content}
+                          </div>
+                      </div>
+                  )}
                 </div>
-                ))}
-            </nav>
+              )}
+
+              <nav className="flex items-center space-x-1.5 lg:space-x-2 ml-2 h-full"> 
+                  {otherNavItems.map((item) => (
+                  <div
+                      key={item.id}
+                      className="relative group h-full flex items-center" 
+                      onMouseEnter={() => handleNavItemMouseEnter(item.id)}
+                      onMouseLeave={handleNavItemMouseLeave}
+                  >
+                      <button
+                      className="flex items-center px-3 py-2 rounded-md hover:bg-slate-700 focus:outline-none transition-colors duration-150"
+                      title={item.title}
+                      >
+                      <span className="text-white group-hover:text-orange-500 transition-colors duration-150">{item.icon}</span>
+                      <span className="ml-2 text-sm font-medium text-white group-hover:text-orange-500 transition-colors duration-150 hidden md:inline">{item.title}</span>
+                      </button>
+                      {activeDropdown === item.id && (
+                      <div 
+                          onMouseEnter={handleDropdownInteractionEnter} onMouseLeave={handleNavItemMouseLeave}
+                          className="absolute top-full mt-0 left-1/2 transform -translate-x-1/2 w-80 md:w-96 bg-black/60 backdrop-blur-md rounded-xl shadow-2xl border border-slate-700 z-50 overflow-hidden"
+                      >
+                          <h3 className="text-sm font-semibold text-slate-200 bg-black/60 px-4 py-3 border-b border-slate-700">{item.title}</h3>
+                          <div className="max-h-[calc(80vh-8rem)] overflow-y-auto custom-scrollbar">
+                              {item.content}
+                          </div>
+                      </div>
+                      )}
+                  </div>
+                  ))}
+              </nav>
+            </div>
           </div>
 
-
-          {/* Right Group: Controls + Right Logo */}
-          <div className="flex items-center h-full space-x-3 md:space-x-4"> {/* Right group also h-full */}
-            <div className="h-full flex items-center"> {/* Wrapper for vertical centering */}
-                <div className="flex items-center space-x-1.5">
-                    <span className={`text-xs font-medium ${!isAdmin ? 'text-white' : 'text-slate-400'}`}>{t('User')}</span>
-                    <button onClick={handleAdminToggle}
-                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ring-1 ring-slate-500 focus:ring-sky-400 ${isAdmin ? 'bg-sky-500' : 'bg-slate-500'}`}>
-                        <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${isAdmin ? 'translate-x-4' : 'translate-x-0.5'}`}/>
-                    </button>
-                    <span className={`text-xs font-medium ${isAdmin ? 'text-white' : 'text-slate-400'}`}>{t('Admin')}</span>
+          <div className="flex items-center h-full space-x-3 md:space-x-4"> 
+            {/* User/Admin Role Dropdown */}
+            <div className="relative group h-full flex items-center"> 
+              <button 
+                onClick={handleUserRoleClick}
+                className="flex items-center text-white group-hover:text-orange-500 focus:outline-none p-2 rounded-md hover:bg-slate-700 transition-colors"
+                title={isAdmin ? t('Admin') : t('User')}
+              >
+                <FiUser size={18}/>
+                <span className="text-xs ml-1.5 hidden sm:inline group-hover:text-orange-500">
+                  {isAdmin ? t('Admin') : t('User')}
+                </span>
+                <FiChevronDown size={14} className="ml-1 group-hover:text-orange-500"/>
+              </button>
+              {activeDropdown === 'userRole' && (
+                <div 
+                  className="absolute right-0 top-full mt-0 w-32 bg-black/60 backdrop-blur-md border border-slate-700 shadow-xl rounded-lg z-50"
+                >
+                  <ul className="text-sm text-slate-200">
+                    <li 
+                      onClick={() => handleRoleChange('user')} 
+                      className={`px-3 py-2 hover:bg-slate-700 cursor-pointer flex items-center ${!isAdmin ? 'bg-slate-700 text-white-400' : ''}`}
+                    >
+                      <span className="mr-2">👤</span>
+                      {t('User')}
+                    </li>
+                    <li 
+                      onClick={() => handleRoleChange('admin')} 
+                      className={`px-3 py-2 hover:bg-slate-700 cursor-pointer flex items-center ${isAdmin ? 'bg-slate-700 text-white-400' : ''}`}
+                    >
+                      <span className="mr-2">👤</span>
+                      {t('Admin')}
+                    </li>
+                  </ul>
                 </div>
+              )}
             </div>
             
-            <div className="relative group h-full flex items-center"> {/* Wrapper for vertical centering */}
+            <div className="relative group h-full flex items-center"> 
               <button onClick={handleLanguageClick}
                       className="flex items-center text-white group-hover:text-orange-500 focus:outline-none p-2 rounded-md hover:bg-slate-700 transition-colors">
                 <FiGlobe size={18}/>
@@ -563,7 +380,6 @@ export default function Header({ isAdmin, setIsAdmin, handleProcess }) {
               </button>
               {activeDropdown === 'language' && (
                 <div onMouseEnter={handleDropdownInteractionEnter} onMouseLeave={handleNavItemMouseLeave}
-                     // MODIFIED: Dropdown background changed to bg-black/60
                      className="absolute right-0 top-full mt-0 w-36 bg-black/60 backdrop-blur-md border border-slate-700 shadow-xl rounded-lg z-50"
                 >
                   <ul className="text-sm text-slate-200">
@@ -573,10 +389,38 @@ export default function Header({ isAdmin, setIsAdmin, handleProcess }) {
                 </div>
               )}
             </div>
-            <img src={UpdatedUIRightLogo} alt="Right Logo" className="h-10 md:h-11 self-center" /> {/* self-center for logo too */}
+            <img src={UpdatedUIRightLogo} alt="Right Logo" className="h-10 md:h-11 self-center" /> 
           </div>
         </div>
-        {/* ADDED: Line below header content */}
+        
+        {/* Mobile menu - shown only on mobile */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-[#2c3a56] w-full absolute top-20 left-0 z-40 shadow-lg">
+            <div className="px-4 py-3 space-y-4">
+              {visibleNavItems.map((item) => (
+                <div key={item.id} className="border-b border-slate-600 pb-3 last:border-0">
+                  <button
+                    onClick={() => handleNavItemClick(item.id)}
+                    className="flex items-center w-full text-left p-2 rounded-md hover:bg-slate-700 transition-colors"
+                  >
+                    <span className="text-white mr-3">{item.icon}</span>
+                    <span className="text-white font-medium">{item.title}</span>
+                    <FiChevronDown 
+                      size={18} 
+                      className={`ml-auto transition-transform ${activeDropdown === item.id ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+                  {activeDropdown === item.id && (
+                    <div className="mt-2 ml-2 pl-6 border-l-2 border-slate-600">
+                      {item.content}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
         <div className="w-full h-px bg-slate-400 opacity-40"></div> 
       </header>
     </>

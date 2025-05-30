@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   BarChart,
@@ -6,14 +7,12 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
   Cell,
   Label,
 } from "recharts";
 
-const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+const capitalize = (str) => (str ? str.charAt(0).toUpperCase() + str.slice(1) : '');
 
-// Professional vibrant color palette
 const COLORS = [
   "#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#ffeaa7",
   "#dda0dd", "#98d8c8", "#f7dc6f", "#bb8fce", "#85c1e9",
@@ -21,14 +20,13 @@ const COLORS = [
   "#70a1ff", "#5f27cd", "#00d2d3", "#ff9f43", "#ee5a52"
 ];
 
-// Enhanced gradient definitions with vibrant colors
 const GRADIENTS = [
   { id: "gradient0", start: "#ff6b6b", end: "#ee5a52", mid: "#ff8a80" },
   { id: "gradient1", start: "#4ecdc4", end: "#26a69a", mid: "#80cbc4" },
   { id: "gradient2", start: "#45b7d1", end: "#1976d2", mid: "#64b5f6" },
   { id: "gradient3", start: "#96ceb4", end: "#4caf50", mid: "#a5d6a7" },
   { id: "gradient4", start: "#ffeaa7", end: "#ffb300", mid: "#ffcc02" },
-  { id: "gradient5", start: "#dda0dd", start2: "#ba68c8", end: "#8e24aa" },
+  { id: "gradient5", start: "#dda0dd", mid: "#ba68c8", end: "#8e24aa" },
   { id: "gradient6", start: "#98d8c8", end: "#00695c", mid: "#4db6ac" },
   { id: "gradient7", start: "#f7dc6f", end: "#f57f17", mid: "#fff176" },
   { id: "gradient8", start: "#bb8fce", end: "#7b1fa2", mid: "#ce93d8" },
@@ -45,7 +43,6 @@ const GRADIENTS = [
   { id: "gradient19", start: "#ee5a52", end: "#d32f2f", mid: "#ef5350" },
 ];
 
-// Format numbers for display (convert thousands to k format)
 const formatNumber = (value) => {
   if (value >= 1000000) {
     return (value / 1000000).toFixed(1) + 'M';
@@ -55,26 +52,10 @@ const formatNumber = (value) => {
   return value.toString();
 };
 
-// In BarChartComponent.jsx
-
-// ... (after formatYAxisTick)
-
-const MAX_X_AXIS_TICK_LABEL_LENGTH = 10; // Max characters before truncating
-
-const formatXAxisTickLabel = (value) => {
-  const stringValue = String(value); // Ensure value is a string
-  if (stringValue.length > MAX_X_AXIS_TICK_LABEL_LENGTH) {
-    return `${stringValue.substring(0, MAX_X_AXIS_TICK_LABEL_LENGTH - 3)}...`;
-  }
-  return stringValue;
-};
-
-// Custom Y-axis tick formatter without AED (will be in label)
 const formatYAxisTick = (value) => {
   return formatNumber(value);
 };
 
-// Sleek modern tooltip
 const CustomTooltip = ({ active, payload, label, xAxisKey, yKey }) => {
   if (active && payload && payload.length) {
     return (
@@ -96,10 +77,10 @@ const CustomTooltip = ({ active, payload, label, xAxisKey, yKey }) => {
           marginBottom: '10px',
           color: '#2d3748',
         }}>
-          {capitalize(xAxisKey || 'Category')}: {label}
+          {capitalize(xAxisKey === "index" ? "Item" : xAxisKey || 'Category')}: {label}
         </div>
         {payload.map((entry, index) => (
-          <div key={index} style={{ 
+          <div key={`tooltip-entry-${index}`} style={{ 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'space-between',
@@ -110,7 +91,7 @@ const CustomTooltip = ({ active, payload, label, xAxisKey, yKey }) => {
                 width: '12px',
                 height: '12px',
                 borderRadius: '50%',
-                backgroundColor: entry.color,
+                backgroundColor: entry.color || '#ccc',
                 marginRight: '8px',
               }}></div>
               <span style={{ color: '#4a5568', fontWeight: '600' }}>
@@ -122,7 +103,7 @@ const CustomTooltip = ({ active, payload, label, xAxisKey, yKey }) => {
               color: '#2d3748',
               marginLeft: '12px',
             }}>
-              {typeof entry.value === 'number' ? `${entry.value.toLocaleString()} AED` : entry.value}
+              {typeof entry.value === 'number' ? `${formatNumber(entry.value)}` : entry.value}
             </span>
           </div>
         ))}
@@ -132,22 +113,23 @@ const CustomTooltip = ({ active, payload, label, xAxisKey, yKey }) => {
   return null;
 };
 
-// Color legend component
-const ColorLegend = ({ data, yKey, yOptions }) => {
-  const isMultiMetric = yKey === "all" && yOptions;
+const ColorLegend = ({ data, xKey, yKey, yOptions, usingFlatColors = true }) => {
+  const isMultiMetric = yKey === "all" && yOptions && yOptions.length > 0;
   
   if (isMultiMetric) {
     return (
       <div style={{
         position: 'absolute',
-        top: '20px',
-        right: '20px',
+        top: '50%',
+        right: '40px',
+        transform: 'translateY(-50%)',
         background: 'rgba(255, 255, 255, 0.9)',
         borderRadius: '12px',
         padding: '16px',
         border: '2px solid #e2e8f0',
         backdropFilter: 'blur(10px)',
         maxWidth: '200px',
+        zIndex: 10 
       }}>
         <div style={{
           fontSize: '14px',
@@ -167,7 +149,9 @@ const ColorLegend = ({ data, yKey, yOptions }) => {
               width: '16px',
               height: '16px',
               borderRadius: '4px',
-              background: `linear-gradient(135deg, ${GRADIENTS[index % GRADIENTS.length].start} 0%, ${GRADIENTS[index % GRADIENTS.length].end} 100%)`,
+              background: usingFlatColors 
+                            ? COLORS[index % COLORS.length] 
+                            : `linear-gradient(135deg, ${GRADIENTS[index % GRADIENTS.length].start} 0%, ${GRADIENTS[index % GRADIENTS.length].end} 100%)`,
               marginRight: '10px',
             }}></div>
             <span style={{
@@ -186,14 +170,15 @@ const ColorLegend = ({ data, yKey, yOptions }) => {
   return (
     <div style={{
       position: 'absolute',
-      top: '20px',
-      right: '20px',
+      top: '50%',
+      right: '40px',
+      transform: 'translateY(-50%)',
       background: 'rgba(255, 255, 255, 0.9)',
       borderRadius: '12px',
       padding: '16px',
-      // border: '2px solid #e2e8f0',
       backdropFilter: 'blur(10px)',
       maxWidth: '200px',
+      zIndex: 10 
     }}>
       <div style={{
         fontSize: '14px',
@@ -204,7 +189,7 @@ const ColorLegend = ({ data, yKey, yOptions }) => {
         Categories
       </div>
       {data.slice(0, 10).map((item, index) => (
-        <div key={index} style={{
+        <div key={`legend-item-${index}`} style={{
           display: 'flex',
           alignItems: 'center',
           marginBottom: '8px',
@@ -212,7 +197,6 @@ const ColorLegend = ({ data, yKey, yOptions }) => {
           <div style={{
             width: '16px',
             height: '16px',
-            // borderRadius: '4px',
             background: `linear-gradient(135deg, ${GRADIENTS[index % GRADIENTS.length].start} 0%, ${GRADIENTS[index % GRADIENTS.length].end} 100%)`,
             marginRight: '10px',
           }}></div>
@@ -224,7 +208,7 @@ const ColorLegend = ({ data, yKey, yOptions }) => {
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
           }}>
-            {item[Object.keys(item)[0]] || `Item ${index + 1}`}
+            {xKey && item[xKey] ? capitalize(item[xKey]) : (item[Object.keys(item)[0]] ? capitalize(item[Object.keys(item)[0]]) : `Item ${index + 1}`)}
           </span>
         </div>
       ))}
@@ -232,91 +216,59 @@ const ColorLegend = ({ data, yKey, yOptions }) => {
   );
 };
 
-const BarChartComponent = ({ data, xKey, yKey, yOptions }) => {
+const BarChartComponent = ({ data, xKey: initialXKey, yKey, yOptions }) => {
   if (!data || data.length === 0) {
     return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '400px',
-        color: '#4a5568',
-        fontSize: '18px',
-        fontWeight: '600',
-        textAlign: 'center'
-      }}>
+      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '400px', color: '#4a5568', fontSize: '18px', fontWeight: '600', textAlign: 'center' }}>
         <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
         No data available to display.
       </div>
     );
   }
   
-  if ((!xKey && xKey !== "all") || (!yKey && yKey !== "all")) {
+  if (yKey === "all" && (!yOptions || !Array.isArray(yOptions) || yOptions.length === 0)) {
+    console.warn("BarChartComponent: 'yKey' is 'all' but 'yOptions' is not a valid array with multiple metric keys.");
+  } else if ((!initialXKey && initialXKey !== "all") || (!yKey && yKey !== "all")) {
     return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '400px',
-        color: '#4a5568',
-        fontSize: '18px',
-        fontWeight: '600',
-        textAlign: 'center'
-      }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '400px', color: '#4a5568', fontSize: '18px', fontWeight: '600', textAlign: 'center'}}>
         <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚙️</div>
         Please select both X and Y axes to display the chart.
       </div>
     );
   }
 
-  // Determine X axis key
-  let xAxisKey = xKey;
+  let xAxisDataKey = initialXKey;
   let chartData = [...data];
 
-  if (xKey === "all") {
+  if (initialXKey === "all") {
     chartData = data.map((item, idx) => ({
       ...item,
-      index: `Item ${idx + 1}`,
+      index: `Item ${idx + 1}`, 
     }));
-    xAxisKey = "index";
+    xAxisDataKey = "index"; 
   }
 
-  // ✅ ADD: Common X-Axis configuration
-const xAxisHeight = 80; // Allocate enough height for angled labels and title
-const commonXAxisProps = {
-  dataKey: xAxisKey, // Use the determined dataKey
-  height: xAxisHeight,
-  interval: "preserveStartEnd", // Allow Recharts to skip ticks to prevent overlap
-  angle: -30,                // Angle labels for more space
-  textAnchor: "end",
-  minTickGap: 10,           // Suggest minimum pixel gap between ticks
-  tick: {
-    fill: '#4A5568',        // Slightly softer tick color
-    fontSize: 10,           // Smaller font for ticks can help
-    fontWeight: '500',
-    dy: 10,                   // Shift angled text down a bit
-  },
-  axisLine: { stroke: '#cbd5e0', strokeWidth: 1.5 }, // Adjusted strokeWidth
-  tickLine: { stroke: '#cbd5e0', strokeWidth: 1 },
-};
-const xAxisLabelOffset = -40; // Adjust offset for the main label below ticks
+  const xAxisConfig = {
+    height: 40, 
+    labelOffset: -10, 
+  };
 
-  // Case 1: Multiple metrics ("all")
+  const useFlatColorsForMultiMetric = true;
+
   if (yKey === "all") {
-    const metricsToDisplay = yOptions;
+    const metricsToDisplay = (Array.isArray(yOptions) ? yOptions : []).filter(opt => typeof opt === 'string' && opt.trim() !== '');
 
     return (
       <div style={{
         width: '100%',
-        height: '600px',
+        height: '550px', 
         position: 'relative',
         padding: '20px',
       }}>
         <div style={{
           textAlign: 'center',
           marginBottom: '20px',
+          paddingTop: '20px',
         }}>
           <div style={{
             fontSize: '24px',
@@ -328,138 +280,21 @@ const xAxisLabelOffset = -40; // Adjust offset for the main label below ticks
           </div>
         </div>
         
-        <ColorLegend data={chartData} yKey={yKey} yOptions={yOptions} />
-        
-        <ResponsiveContainer width="100%" height="85%">
-          <BarChart 
+        <ColorLegend 
             data={chartData} 
-            margin={{ top: 20, right: 250, left: 120, bottom: 100 }}
-            barGap={5}
-            barCategoryGap={10}
-          >
-            <defs>
-              {GRADIENTS.map((gradient) => (
-                <linearGradient key={gradient.id} id={gradient.id} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={gradient.start} stopOpacity={1}/>
-                  <stop offset="50%" stopColor={gradient.mid || gradient.start} stopOpacity={0.9}/>
-                  <stop offset="100%" stopColor={gradient.end} stopOpacity={0.8}/>
-                </linearGradient>
-              ))}
-            </defs>
-            
-            <CartesianGrid 
-              strokeDasharray="3 3" 
-              stroke="#e2e8f0"
-              strokeWidth={1}
-              horizontal={true}
-              vertical={false}
-            />
-            
-            <XAxis
-              dataKey={xAxisKey}
-              interval={0}
-              angle={-10}
-              textAnchor="end"
-              height={70}
-              tickFormatter={formatXAxisTickLabel}
-              tick={{
-                fill: '#000',
-                fontSize: 11,
-                fontWeight: '700',
-              }}
-              axisLine={{ stroke: '#cbd5e0', strokeWidth: 2 }}
-              tickLine={{ stroke: '#cbd5e0', strokeWidth: 1 }}
-            >
-              <Label
-                value={capitalize(xAxisKey)}
-                position="insideBottom"
-                offset={xAxisLabelOffset}
-                style={{ 
-                  textAnchor: "middle", 
-                  fontSize: 16, 
-                  fill: "#2d3748",
-                  fontWeight: '700',
-                }}
-              />
-            </XAxis>
-            
-            <YAxis
-              tickFormatter={formatYAxisTick}
-              tick={{
-                fill: '#000',
-                fontSize: 11,
-                fontWeight: '700',
-              }}
-              axisLine={{ stroke: '#cbd5e0', strokeWidth: 2 }}
-              tickLine={{ stroke: '#cbd5e0', strokeWidth: 1 }}
-              width={100}
-            >
-              <Label
-                value="Values (AED)"
-                angle={-90}
-                position="insideLeft"
-                offset={-5}
-                style={{ 
-                  textAnchor: "middle", 
-                  fontSize: 16, 
-                  fill: "#2d3748",
-                  fontWeight: '700',
-                }}
-              />
-            </YAxis>
-            
-            <Tooltip
-              content={<CustomTooltip xAxisKey={xAxisKey} yKey={yKey} />}
-              cursor={{
-                fill: 'rgba(102, 126, 234, 0.1)',
-              }}
-            />
-            
-            {metricsToDisplay.map((metric, idx) => (
-              <Bar
-                key={metric}
-                dataKey={metric}
-                name={capitalize(metric)}
-                fill={`url(#gradient${idx % GRADIENTS.length})`}
-                radius={[4, 4, 0, 0]}
-                maxBarSize={40}
-              />
-            ))}
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    );
-  }
-
-  // Case 2: Single metric - each data item as separate bar with unique color
-  return (
-    <div style={{
-      width: '100%',
-      height: '600px',
-      position: 'relative',
-      padding: '20px',
-    }}>
-      <div style={{
-        textAlign: 'center',
-        marginBottom: '20px',
-      }}>
-        <div style={{
-          fontSize: '24px',
-          fontWeight: '800',
-          color: '#2d3748',
-          marginBottom: '8px',
-        }}>
-          {capitalize(yKey)} Distribution
-        </div>
-      </div>
-      
-      <ColorLegend data={chartData} yKey={yKey} />
-      
-      <ResponsiveContainer width="100%" height="85%">
+            xKey={xAxisDataKey}
+            yKey={yKey} 
+            yOptions={metricsToDisplay} 
+            usingFlatColors={useFlatColorsForMultiMetric} 
+        /> 
+        
         <BarChart 
           data={chartData} 
-          margin={{ top: 20, right: 200, left: 70, bottom: xAxisHeight - 10  }}
-          barGap={5}
+          width={800}
+          height={468}
+          margin={{ top: 20, right: 240, left: 60, bottom: xAxisConfig.height }}
+          barGap={1}
+          barCategoryGap="10%" 
         >
           <defs>
             {GRADIENTS.map((gradient) => (
@@ -480,27 +315,19 @@ const xAxisLabelOffset = -40; // Adjust offset for the main label below ticks
           />
           
           <XAxis
-            dataKey={xAxisKey}
-            interval={0}
-            angle={-25}
-            textAnchor="end"
-            height={70}
-            tickFormatter={formatXAxisTickLabel}
-            tick={{
-              fill: '#000',
-              fontSize: 11,
-              fontWeight: '700',
-            }}
+            dataKey={xAxisDataKey}
+            height={xAxisConfig.height}
             axisLine={{ stroke: '#cbd5e0', strokeWidth: 2 }}
-            tickLine={{ stroke: '#cbd5e0', strokeWidth: 1 }}
+            tickLine={false} 
+            tick={false}     
           >
             <Label
-              value={capitalize(xAxisKey)}
+              value={capitalize(xAxisDataKey === "index" ? "Item" : xAxisDataKey)} 
               position="insideBottom"
-              offset={xAxisLabelOffset}
+              offset={xAxisConfig.labelOffset}
               style={{ 
                 textAnchor: "middle", 
-                fontSize: 14, 
+                fontSize: 16, 
                 fill: "#2d3748",
                 fontWeight: '700',
               }}
@@ -510,19 +337,19 @@ const xAxisLabelOffset = -40; // Adjust offset for the main label below ticks
           <YAxis
             tickFormatter={formatYAxisTick}
             tick={{
-              fill: '#000',
-              fontSize: 11,
-              fontWeight: '700',
+              fill: '#2d3748', 
+              fontSize: 12,   
+              fontWeight: '500',
             }}
             axisLine={{ stroke: '#cbd5e0', strokeWidth: 2 }}
             tickLine={{ stroke: '#cbd5e0', strokeWidth: 1 }}
-            width={100}
+            width={60} 
           >
             <Label
-              value={`${capitalize(yKey)} (AED)`}
+              value="Values (M AED)"
               angle={-90}
               position="insideLeft"
-              offset={-5}
+              offset={-20}
               style={{ 
                 textAnchor: "middle", 
                 fontSize: 16, 
@@ -533,27 +360,142 @@ const xAxisLabelOffset = -40; // Adjust offset for the main label below ticks
           </YAxis>
           
           <Tooltip
-            content={<CustomTooltip xAxisKey={xAxisKey} yKey={yKey} />}
+            content={<CustomTooltip xAxisKey={xAxisDataKey} yKey={yKey} />}
             cursor={{
               fill: 'rgba(102, 126, 234, 0.1)',
             }}
           />
           
-          <Bar 
-            dataKey={yKey} 
-            name={capitalize(yKey)} 
-            radius={[6, 6, 0, 0]} 
-            maxBarSize={60}
-          >
-            {chartData.map((entry, index) => (
-              <Cell 
-                key={`cell-${index}`} 
-                fill={`url(#gradient${index % GRADIENTS.length})`}
-              />
-            ))}
-          </Bar>
+          {metricsToDisplay.length > 0 ? metricsToDisplay.map((metric, idx) => (
+            <Bar
+              key={metric}
+              dataKey={metric}
+              name={capitalize(metric)}
+              fill={useFlatColorsForMultiMetric ? COLORS[idx % COLORS.length] : `url(#gradient${idx % GRADIENTS.length})`}
+              radius={[4, 4, 0, 0]}
+              barSize={35} 
+            />
+          )) : null}
         </BarChart>
-      </ResponsiveContainer>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      width: '100%',
+      height: '550px', 
+      position: 'relative',
+      padding: '20px',
+    }}>
+      <div style={{
+        textAlign: 'center',
+        marginBottom: '20px',
+        paddingTop: '20px',
+      }}>
+        <div style={{
+          fontSize: '24px',
+          fontWeight: '800',
+          color: '#2d3748',
+          marginBottom: '8px',
+        }}>
+          {capitalize(yKey)} Distribution
+        </div>
+      </div>
+      
+      <ColorLegend data={chartData} xKey={xAxisDataKey} yKey={yKey} /> 
+      
+      <BarChart 
+        data={chartData} 
+        width={800}
+        height={468}
+        margin={{ top: 20, right: 200, left: 60, bottom: xAxisConfig.height }} 
+        barCategoryGap="15%" 
+      >
+        <defs>
+          {GRADIENTS.map((gradient) => (
+            <linearGradient key={gradient.id} id={gradient.id} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={gradient.start} stopOpacity={1}/>
+              <stop offset="50%" stopColor={gradient.mid || gradient.start} stopOpacity={0.9}/>
+              <stop offset="100%" stopColor={gradient.end} stopOpacity={0.8}/>
+            </linearGradient>
+          ))}
+        </defs>
+        
+        <CartesianGrid 
+          strokeDasharray="3 3" 
+          stroke="#e2e8f0"
+          strokeWidth={1}
+          horizontal={true}
+          vertical={false}
+        />
+        
+        <XAxis
+          dataKey={xAxisDataKey}
+          height={xAxisConfig.height}
+          axisLine={{ stroke: '#cbd5e0', strokeWidth: 2 }}
+          tickLine={false} 
+          tick={false}     
+        >
+          <Label
+            value={capitalize(xAxisDataKey === "index" ? "Item" : xAxisDataKey)} 
+            position="insideBottom"
+            offset={xAxisConfig.labelOffset}
+            style={{ 
+              textAnchor: "middle", 
+              fontSize: 14, 
+              fill: "#2d3748",
+              fontWeight: '700',
+            }}
+          />
+        </XAxis>
+        
+        <YAxis
+          tickFormatter={formatYAxisTick}
+          tick={{
+            fill: '#2d3748', 
+            fontSize: 12,   
+            fontWeight: '500',
+          }}
+          axisLine={{ stroke: '#cbd5e0', strokeWidth: 2 }}
+          tickLine={{ stroke: '#cbd5e0', strokeWidth: 1 }}
+          width={60}
+        >
+          <Label
+            value={`${capitalize(yKey)} (M AED)`}
+            angle={-90}
+            position="insideLeft"
+            offset={-20} 
+            style={{ 
+              textAnchor: "middle", 
+              fontSize: 16, 
+              fill: "#2d3748",
+              fontWeight: '700',
+            }}
+          />
+        </YAxis>
+        
+        <Tooltip
+          content={<CustomTooltip xAxisKey={xAxisDataKey} yKey={yKey} />}
+          cursor={{
+            fill: 'rgba(102, 126, 234, 0.1)',
+          }}
+        />
+        
+        <Bar 
+          dataKey={yKey} 
+          name={capitalize(yKey)} 
+          radius={[6, 6, 0, 0]} 
+          barSize={35} 
+        >
+          {chartData.map((entry, index) => (
+            <Cell 
+              key={`cell-${index}`} 
+              fill={`url(#gradient${index % GRADIENTS.length})`}
+            />
+          ))}
+        </Bar>
+      </BarChart>
     </div>
   );
 };

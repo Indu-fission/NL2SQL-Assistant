@@ -5,6 +5,7 @@ import PieChartComponent from "./Charts/PieChart";
 import ResultTable from "./Charts/ResultTable";
 import ScatterPlot from "./Charts/ScatterPlot";
 import HeatMap from "./Charts/HeatMap";
+import ErrorBoundary from "./ErrorBoundary";
 import "primereact/resources/themes/saga-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
@@ -13,9 +14,6 @@ import { MultiSelect } from "primereact/multiselect";
 const VisualizationPanel = ({ data, chartType }) => {
   const [xOptions, setXOptions] = useState([]);
   const [yOptions, setYOptions] = useState([]);
-  // const [selectedX, setSelectedX] = useState([]);
-  // const [selectedY, setSelectedY] = useState([]);
-
   const [selectedX, setSelectedX] = useState("");
   const [selectedY, setSelectedY] = useState("");
   const [showAxisSelectors, setShowAxisSelectors] = useState(true);
@@ -23,7 +21,14 @@ const VisualizationPanel = ({ data, chartType }) => {
   const [filteredData, setFilteredData] = useState([]);
 
   useEffect(() => {
-    if (!data || data.length === 0) return;
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      setXOptions([]);
+      setYOptions([]);
+      setSelectedX("");
+      setSelectedY("");
+      setFilteredData([]);
+      return;
+    }
 
     const sampleRow = data[0];
     const allKeys = Object.keys(sampleRow);
@@ -46,14 +51,25 @@ const VisualizationPanel = ({ data, chartType }) => {
     setXOptions(xCategorical);
     setYOptions(yNumerical);
 
-    // Automatically select first options if available
-    if (xCategorical.length > 0) setSelectedX(xCategorical[0]);
-    if (yNumerical.length > 0) setSelectedY("all"); // Default to 'all' for Y-axis
+    // Automatically select first valid options
+    if (xCategorical.length > 0) {
+      setSelectedX(xCategorical[0]);
+    } else {
+      setSelectedX("");
+    }
+    if (yNumerical.length > 0) {
+      setSelectedY(yNumerical[0]); // Default to first numeric column instead of "all"
+    } else {
+      setSelectedY("");
+    }
   }, [data]);
 
   // Filter data based on selections
   useEffect(() => {
-    if (!data || data.length === 0) return;
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      setFilteredData([]);
+      return;
+    }
 
     let filtered = [...data];
 
@@ -87,7 +103,6 @@ const VisualizationPanel = ({ data, chartType }) => {
               className="w-full p-2 border rounded"
             >
               <option value="">-- Select X --</option>
-              <option value="all">All Categories</option>
               {xOptions.map((option) => (
                 <option key={option} value={option}>
                   {option}
@@ -106,9 +121,8 @@ const VisualizationPanel = ({ data, chartType }) => {
               className="w-full p-2 border rounded"
             >
               <option value="">-- Select Y --</option>
-              <option value="all">All Metrics</option>
               {yOptions
-                .filter((opt) => opt !== selectedX || selectedX === "all")
+                .filter((opt) => opt !== selectedX)
                 .map((option) => (
                   <option key={option} value={option}>
                     {option}
@@ -120,33 +134,43 @@ const VisualizationPanel = ({ data, chartType }) => {
       )}
       <div className="rounded p-2">
         {chartType === "line" && (
-          <LineChartComponent
-            data={filteredData}
-            xKey={selectedX}
-            yKey={selectedY}
-            yOptions={yOptions}
-          />
+          <ErrorBoundary>
+            <LineChartComponent
+              data={filteredData}
+              xKey={selectedX}
+              yKey={selectedY}
+              yOptions={yOptions}
+            />
+          </ErrorBoundary>
         )}
         {chartType === "bar" && (
-          <BarChartComponent
-            data={filteredData}
-            xKey={selectedX}
-            yKey={selectedY}
-            yOptions={yOptions}
-          />
+          <ErrorBoundary>
+            <BarChartComponent
+              data={filteredData}
+              xKey={selectedX}
+              yKey={selectedY}
+              yOptions={yOptions}
+            />
+          </ErrorBoundary>
         )}
         {chartType === "pie" && (
-          <PieChartComponent
-            data={filteredData}
-            xKey={selectedX}
-            yKey={selectedY}
-          />
+          <ErrorBoundary>
+            <PieChartComponent
+              data={filteredData}
+              xKey={selectedX}
+              yKey={selectedY}
+            />
+          </ErrorBoundary>
         )}
         {chartType === "scatterPlot" && (
-          <ScatterPlot data={filteredData} xKey={selectedX} yKey={selectedY} />
+          <ErrorBoundary>
+            <ScatterPlot data={filteredData} xKey={selectedX} yKey={selectedY} />
+          </ErrorBoundary>
         )}
         {chartType === "heatMap" && (
-          <HeatMap data={filteredData} xKey={selectedX} yKey={selectedY} />
+          <ErrorBoundary>
+            <HeatMap data={filteredData} xKey={selectedX} yKey={selectedY} />
+          </ErrorBoundary>
         )}
         {chartType === "table" && <ResultTable data={filteredData} />}
       </div>

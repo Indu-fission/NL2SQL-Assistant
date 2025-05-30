@@ -4,7 +4,7 @@
     "processButton": "Process Query",
     "processing": "Processing...",
     "clearButton": "Clear Results",
-    "pipelineTitle": "🔄 Processing Pipeline",
+    "pipelineTitle": "Processing Pipeline",
     "executionTime": "Execution time",
     "placeholder": "Example: What was the GDP contribution of Manufacturing in 2020?",
     "appTitle": "NL2SQL Assistant",
@@ -28,7 +28,13 @@
     "Visualization Agent":"Visualization Agent",
     "fimater":"Suggests charts",
     
-    "fetching":" Crafting your SQL... please hold on",
+    "Admin":"Admin",
+    "User":"User",
+
+    "ontheimagecontent":"Data For A Better Future",
+    "ontheimagesecondcontent":"THE BEST COUNTRY IN THE WORLD BY 2071",
+
+    "fetching":" Crafting your SQL Query... please hold on",
     "warning":" Could you try rephrasing your input",
    "output":"Query Output",
   
@@ -70,10 +76,9 @@
     "Decomposer Agent": "Decomposer Agent",
     "Refiner Agent": "Refiner Agent",
     "Database Execution": "Database Execution",
-    "Visualization Agent":"Visualization Agent",
+    "Visualization Agent":"Visualization Agent"
 
-    "Admin":"Admin",
-    "User":"User"
+   
 
   }
   
