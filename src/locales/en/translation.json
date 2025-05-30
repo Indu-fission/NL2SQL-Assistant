@@ -70,7 +70,10 @@
     "Decomposer Agent": "Decomposer Agent",
     "Refiner Agent": "Refiner Agent",
     "Database Execution": "Database Execution",
-    "Visualization Agent":"Visualization Agent"
+    "Visualization Agent":"Visualization Agent",
+
+    "Admin":"Admin",
+    "User":"User"
 
   }
   

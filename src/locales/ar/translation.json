@@ -70,7 +70,10 @@
     "Decomposer Agent": "عامل التحلل",
     "Refiner Agent": "وكيل التكرير",
     "Database Execution": "تنفيذ قاعدة البيانات",
-    "Visualization Agent":"وكيل التصور"
+    "Visualization Agent":"وكيل التصور",
+
+   "Admin":"مسؤل",
+    "User":"مستخدم"
 
    
 
