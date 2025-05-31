@@ -22,70 +22,74 @@ const ResultTable = ({ data }) => {
 
   return (
     <div className="w-full overflow-x-auto mt-4">
-      <table className="w-full table-auto border-collapse border border-gray-300">
-        <thead>
-          <tr>
-            {columns.map((col) => (
-              <th
-                key={col}
-                className="border border-gray-300 px-4 py-2 bg-gray-200 text-left"
-              >
-                {col}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {displayedData.map((row, index) => (
-            <tr key={index} className="hover:bg-gray-100 hover:text-black">
-              {columns.map((col) => (
-                <td key={col} className="border border-gray-300 px-4 py-2">
-                  {row[col]}
-                </td>
+      <div className="border border-gray-300  bg-white">
+        <div className="overflow-x-auto">
+          <table className="w-full table-auto border-collapse">
+            <thead>
+              <tr>
+                {columns.map((col) => (
+                  <th
+                    key={col}
+                    className="border-b border-gray-300 px-4 py-2 bg-gray-200 text-left font-semibold"
+                  >
+                    {col}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {displayedData.map((row, index) => (
+                <tr key={index} className="hover:bg-gray-100 hover:text-black">
+                  {columns.map((col) => (
+                    <td key={col} className="border-b border-gray-300 px-4 py-2">
+                      {row[col]}
+                    </td>
+                  ))}
+                </tr>
               ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {isPaginationNeeded && (
-        <div className="flex justify-end mt-3 space-x-2 text-sm">
-          {/* Prev Button */}
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className={`w-7 h-7 rounded-full flex items-center justify-center border border-gray-400 transition
-              ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#b58932] hover:text-white'}`}
-          >
-            &lt;
-          </button>
-
-          {/* Page Numbers */}
-          {[...Array(totalPages)].map((_, i) => (
-            <button
-              key={i + 1}
-              onClick={() => handlePageChange(i + 1)}
-              className={`px-3 py-1 rounded border text-xs ${
-                currentPage === i + 1
-                  ? 'bg-blue-100 font-semibold'
-                  : 'hover:bg-gray-100'
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
-
-          {/* Next Button */}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className={`w-7 h-7 rounded-full flex items-center justify-center border border-gray-400 transition
-              ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#b58932] hover:text-white'}`}
-          >
-            &gt;
-          </button>
+            </tbody>
+          </table>
         </div>
-      )}
+        {isPaginationNeeded && (
+          <div className="flex justify-end p-4 border-t border-gray-300">
+            <div className="flex space-x-2 text-sm">
+              {/* Prev Button */}
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`w-7 h-7 rounded-full flex items-center justify-center border border-gray-400 transition
+                  ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#b58932] hover:text-white'}`}
+                aria-label="Previous Page"
+              >
+                &lt;
+              </button>
+
+              {/* Page Numbers */}
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => handlePageChange(i + 1)}
+                  className={`px-3 py-1 rounded border text-xs
+                    ${currentPage === i + 1 ? 'bg-blue-100 font-semibold' : 'hover:bg-gray-100'}`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+
+              {/* Next Button */}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`w-7 h-7 rounded-full flex items-center justify-center border border-gray-400 transition
+                  ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#b58932] hover:text-white'}`}
+                aria-label="Next Page"
+              >
+                &gt;
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useContext } from "react";
 import TabsContent from "./TabsContent";
 import { FiLoader } from "react-icons/fi";
@@ -317,20 +318,20 @@ const MainContent = ({
                     <span>{allRolesData[role]?.currentStep} ({t("loading")}...)</span>
                   </div>
                 ) : (
-                  <div className="font-semibold flex items-center gap-2 text-sm" style={{color: ACCENT_BROWN_COLOR}}>
+                  <div className="font-semibold flex items-center gap-2 text-lg" style={{color: ACCENT_BROWN_COLOR}}>
                     {t("fetching")}...
                     <CgSpinner className="animate-spin text-xl" />
                   </div>
                 )
               ) : allRolesData[role]?.errorMessage ? (
                 <div
-                  className="px-3 py-1.5 rounded-md font-medium text-sm shadow-sm inline-block"
+                  className="px-3 py-1.5 rounded-md font-medium text-lg shadow-sm inline-block"
                   style={{ color: ACCENT_BROWN_COLOR, backgroundColor: ERROR_MESSAGE_BG_COLOR, border: `1px solid ${ACCENT_BROWN_COLOR}20` }}
                 >
                   {allRolesData[role]?.errorMessage}
                 </div>
               ) : role === "admin" && hasProcessed && allRolesData[role]?.totalExecutionTime ? (
-                <p className="text-sm" style={{ color: ACCENT_BROWN_COLOR }}>
+                <p className="text-lg" style={{ color: ACCENT_BROWN_COLOR }}>
                   {t("executionTime")}: {allRolesData[role]?.totalExecutionTime} sec
                 </p>
               ) : null }
