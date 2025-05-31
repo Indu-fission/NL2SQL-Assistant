@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   BarChart,
@@ -123,13 +122,7 @@ const ColorLegend = ({ data, xKey, yKey, yOptions, usingFlatColors = true }) => 
         top: '50%',
         right: '40px',
         transform: 'translateY(-50%)',
-        background: 'rgba(255, 255, 255, 0.9)',
-        borderRadius: '12px',
-        padding: '16px',
-        border: '2px solid #e2e8f0',
-        backdropFilter: 'blur(10px)',
-        maxWidth: '200px',
-        zIndex: 10 
+        zIndex: 10,
       }}>
         <div style={{
           fontSize: '14px',
@@ -139,30 +132,36 @@ const ColorLegend = ({ data, xKey, yKey, yOptions, usingFlatColors = true }) => 
         }}>
           Metrics
         </div>
-        {yOptions.map((metric, index) => (
-          <div key={metric} style={{
-            display: 'flex',
-            alignItems: 'center',
-            marginBottom: '8px',
-          }}>
-            <div style={{
-              width: '16px',
-              height: '16px',
-              borderRadius: '4px',
-              background: usingFlatColors 
+        <ul style={{
+          listStyle: 'none',
+          padding: 0,
+          margin: 0,
+        }}>
+          {yOptions.map((metric, index) => (
+            <li key={metric} style={{
+              display: 'flex',
+              alignItems: 'center',
+              marginBottom: '8px',
+            }}>
+              <div style={{
+                width: '16px',
+                height: '16px',
+                borderRadius: '4px',
+                background: usingFlatColors 
                             ? COLORS[index % COLORS.length] 
                             : `linear-gradient(135deg, ${GRADIENTS[index % GRADIENTS.length].start} 0%, ${GRADIENTS[index % GRADIENTS.length].end} 100%)`,
-              marginRight: '10px',
-            }}></div>
-            <span style={{
-              fontSize: '12px',
-              fontWeight: '600',
-              color: '#4a5568',
-            }}>
-              {capitalize(metric)}
-            </span>
-          </div>
-        ))}
+                marginRight: '10px',
+              }}></div>
+              <span style={{
+                fontSize: '12px',
+                fontWeight: '600',
+                color: '#4a5568',
+              }}>
+                {capitalize(metric)}
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
     );
   }
@@ -173,12 +172,7 @@ const ColorLegend = ({ data, xKey, yKey, yOptions, usingFlatColors = true }) => 
       top: '50%',
       right: '40px',
       transform: 'translateY(-50%)',
-      background: 'rgba(255, 255, 255, 0.9)',
-      borderRadius: '12px',
-      padding: '16px',
-      backdropFilter: 'blur(10px)',
-      maxWidth: '200px',
-      zIndex: 10 
+      zIndex: 10,
     }}>
       <div style={{
         fontSize: '14px',
@@ -188,30 +182,37 @@ const ColorLegend = ({ data, xKey, yKey, yOptions, usingFlatColors = true }) => 
       }}>
         Categories
       </div>
-      {data.slice(0, 10).map((item, index) => (
-        <div key={`legend-item-${index}`} style={{
-          display: 'flex',
-          alignItems: 'center',
-          marginBottom: '8px',
-        }}>
-          <div style={{
-            width: '16px',
-            height: '16px',
-            background: `linear-gradient(135deg, ${GRADIENTS[index % GRADIENTS.length].start} 0%, ${GRADIENTS[index % GRADIENTS.length].end} 100%)`,
-            marginRight: '10px',
-          }}></div>
-          <span style={{
-            fontSize: '12px',
-            fontWeight: '600',
-            color: '#4a5568',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
+      <ul style={{
+        listStyle: 'none',
+        padding: 0,
+        margin: 0,
+      }}>
+        {data.slice(0, 10).map((item, index) => (
+          <li key={`legend-item-${index}`} style={{
+            display: 'flex',
+            alignItems: 'center',
+            marginBottom: '8px',
           }}>
-            {xKey && item[xKey] ? capitalize(item[xKey]) : (item[Object.keys(item)[0]] ? capitalize(item[Object.keys(item)[0]]) : `Item ${index + 1}`)}
-          </span>
-        </div>
-      ))}
+            <div style={{
+              width: '16px',
+              height: '16px',
+              background: `linear-gradient(135deg, ${GRADIENTS[index % GRADIENTS.length].start} 0%, ${GRADIENTS[index % GRADIENTS.length].end} 100%)`,
+              marginRight: '10px',
+            }}></div>
+            <span style={{
+              fontSize: '12px',
+              fontWeight: '600',
+              color: '#4a5568',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              maxWidth: '170px', // Adjusted to fit without container
+            }}>
+              {xKey && item[xKey] ? capitalize(item[xKey]) : (item[Object.keys(item)[0]] ? capitalize(item[Object.keys(item)[0]]) : `Item ${index + 1}`)}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
@@ -346,7 +347,7 @@ const BarChartComponent = ({ data, xKey: initialXKey, yKey, yOptions }) => {
             width={60} 
           >
             <Label
-              value="Values (M AED)"
+              value="Values (in Million AED)"
               angle={-90}
               position="insideLeft"
               offset={-20}
@@ -418,7 +419,7 @@ const BarChartComponent = ({ data, xKey: initialXKey, yKey, yOptions }) => {
               <stop offset="0%" stopColor={gradient.start} stopOpacity={1}/>
               <stop offset="50%" stopColor={gradient.mid || gradient.start} stopOpacity={0.9}/>
               <stop offset="100%" stopColor={gradient.end} stopOpacity={0.8}/>
-            </linearGradient>
+              </linearGradient>
           ))}
         </defs>
         
@@ -462,7 +463,7 @@ const BarChartComponent = ({ data, xKey: initialXKey, yKey, yOptions }) => {
           width={60}
         >
           <Label
-            value={`${capitalize(yKey)} (M AED)`}
+            value={`${capitalize(yKey)} (in Million AED)`}
             angle={-90}
             position="insideLeft"
             offset={-20} 

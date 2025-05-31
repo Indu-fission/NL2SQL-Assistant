@@ -3,12 +3,14 @@ import React, { useState, useRef, useEffect, useContext } from "react";
 import { useTranslation } from 'react-i18next';
 import UpdatedUILeftLogo from "../../public/UpdatedUILeftLogo.svg"; // Ensure path is correct
 import UpdatedUIRightLogo from "../../public/UpdatedUIRightLogo.svg"; // Ensure path is correct
+import User from "../../public/User.svg"; // Ensure path is correct
 import { AppContext } from "./context/AppContext"; // Ensure path is correct
 import { FiInfo, FiDatabase, FiUploadCloud, FiClock, FiChevronDown, FiGlobe, FiCopy, FiX, FiUser, FiMenu } from 'react-icons/fi';
 import { HiChevronRight, HiChevronDown as HiChevronDownSolid } from "react-icons/hi";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { color } from "chart.js/helpers";
 
 export default function Header({ isAdmin, setIsAdmin, handleProcess }) {
   const { i18n, t } = useTranslation();
@@ -356,14 +358,18 @@ export default function Header({ isAdmin, setIsAdmin, handleProcess }) {
                       onClick={() => handleRoleChange('user')} 
                       className={`px-3 py-2 hover:bg-slate-700 cursor-pointer flex items-center ${!isAdmin ? 'bg-slate-700 text-white-400' : ''}`}
                     >
-                      <span className="mr-2">👤</span>
+                      <span className="mr-2">   
+                         <img src={User} alt="User" className="h-5 md:h-5 text-white fill-white" />
+                      </span>
                       {t('User')}
                     </li>
                     <li 
                       onClick={() => handleRoleChange('admin')} 
                       className={`px-3 py-2 hover:bg-slate-700 cursor-pointer flex items-center ${isAdmin ? 'bg-slate-700 text-white-400' : ''}`}
                     >
-                      <span className="mr-2">👤</span>
+                      <span className="mr-2">
+                         <img src={User} alt="User" className="h-5 md:h-5 text-white fill-white" />
+                      </span>
                       {t('Admin')}
                     </li>
                   </ul>

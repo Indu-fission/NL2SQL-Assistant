@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   LineChart,
@@ -105,20 +104,30 @@ const XAxisCategoriesLegend = ({ chartData, xAxisKey, colorsPalette }) => {
 
   if (uniqueXValues.length === 0) return null;
 
+  // Dynamically adjust font size and spacing based on item count
+  const itemCount = uniqueXValues.length;
+  const fontSize = itemCount > 30 ? '9px' : itemCount > 20 ? '10px' : '11px';
+  const marginBottom = itemCount > 30 ? '3px' : itemCount > 20 ? '4px' : '5px';
+  const lineHeight = itemCount > 30 ? '1.1' : '1.2';
+
   return (
     <div style={{ 
-      maxHeight: '380px', 
-      overflowY: 'auto', 
-      paddingLeft: '20px',
+      padding: '10px',
       position: 'absolute',
       right: '0',
       top: '0',
-      width: '200px'
+      width: '200px',
+      height: '100%', // Match chart height
+      boxSizing: 'border-box',
     }}>
       <ul style={{ 
         listStyle: 'none', 
         padding: 0, 
-        margin: 0 
+        margin: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        lineHeight: lineHeight,
       }}>
         {uniqueXValues.map((value, index) => (
           <li
@@ -126,8 +135,11 @@ const XAxisCategoriesLegend = ({ chartData, xAxisKey, colorsPalette }) => {
             style={{
               display: 'flex',
               alignItems: 'center',
-              marginBottom: '6px',
-              fontSize: '11px',
+              marginBottom: marginBottom,
+              fontSize: fontSize,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
             }}
           >
             <div style={{
@@ -137,10 +149,14 @@ const XAxisCategoriesLegend = ({ chartData, xAxisKey, colorsPalette }) => {
               marginRight: '6px',
               borderRadius: '2px',
               border: `1px solid ${colorsPalette[index % colorsPalette.length]}`,
+              flexShrink: 0,
             }} />
             <span style={{
               color: colorsPalette[index % colorsPalette.length],
               fontWeight: 500,
+              maxWidth: '170px', // Prevent text from overflowing container
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
             }}>
               {safeCapitalize(value)}
             </span>
@@ -177,7 +193,7 @@ const LineChartComponent = ({ data, xKey, yKey, yOptions }) => {
   const metricsToDisplay = yKey === "all" ? (yOptions || []) : [yKey].filter(Boolean);
 
   const yAxisLabelValue = yKey === "all" ? "Values" : safeCapitalize(yKey);
-  const yAxisUnit = "(M AED)";
+  const yAxisUnit = "(in Million AED)";
   const chartTitle = yKey === "all" ? `Trend of Selected Metrics over ${safeCapitalize(xAxisKey)}` : `${safeCapitalize(yKey)} Trend over ${safeCapitalize(xAxisKey)}`;
 
   return (
