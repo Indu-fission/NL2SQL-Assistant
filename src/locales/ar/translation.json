@@ -38,7 +38,12 @@
     "Visualization Agent":"وكيل التصور",
     "fimater":"يقترح الرسوم البيانية",
     "Query Results & Summary":"نتائج الاستعلام والملخص",
-  
+   "loadingVisualizationAgentData":"تحميل بيانات وكيل التصور",
+   "No table data":"لا توجد بيانات الجدول",
+   "No valid table data":"لا توجد بيانات جدول صالحة",
+   "Empty table":"جدول فارغ",
+   "No data to display":"لا توجد بيانات لعرضها",
+   "Copied!":"!تم نسخها",
   
      "status": "الحالة",
     "details": "تفاصيل",

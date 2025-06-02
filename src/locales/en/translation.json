@@ -28,6 +28,12 @@
     "Visualization Agent":"Visualization Agent",
     "fimater":"Suggests charts",
     "Query Results & Summary":"Query Results & Summary",
+    "loadingVisualizationAgentData":"loadingVisualizationAgentData",
+    "No table data":"There is no table data",
+    "No valid table data":"No valid table data",
+    "Empty table":"Empty table",
+    "No data to display":"No data to display",
+    "Copied!":"Copied!",
 
     "Admin":"Admin",
     "User":"User",
