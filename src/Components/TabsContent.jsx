@@ -347,11 +347,14 @@ const TabsContent = ({
           {renderAdminAgentContent("Refiner Agent", (data) => (<>
             <AdminSectionItem titleKey="status"><span className={`text-base ${textColor}`}>{data.status}</span></AdminSectionItem>
             <AdminSectionItem titleKey="details">
-              <IndentedContent> {/* IndentedContent no longer overflow-hidden by default */}
-                {/* ADDED overflow-x-auto */}
-                <div className="relative bg-gray-100 p-4 rounded-lg border border-gray-300 font-mono text-sm whitespace-pre-wrap text-gray-800 w-full overflow-x-auto">{typeof data.details === "string" ? data.details : <pre>{JSON.stringify(data.details, null, 2)}</pre>}
-                  {/* <CopyButton textToCopy={data.details} /> */}
-                  <div className="absolute top-2 right-2"> {/* Adjust top value as needed */}
+              <IndentedContent>
+                <div className="relative bg-gray-100 rounded-lg border border-gray-300 font-mono text-sm text-gray-800 w-full">
+                  <div className="overflow-x-auto max-h-96 p-4">
+                    <div className="whitespace-pre" style={{ minWidth: 'max-content' }}>
+                      {typeof data.details === "string" ? data.details : <pre>{JSON.stringify(data.details, null, 2)}</pre>}
+                    </div>
+                  </div>
+                  <div className="absolute top-2 right-2 mr-5">
                     <CopyButton textToCopy={data.details} />
                   </div>
                 </div>
@@ -404,10 +407,13 @@ const TabsContent = ({
             <AdminSectionItem titleKey="details"><span className={`text-base ${textColor} mt-0.5 whitespace-pre-wrap`}>{typeof data.details === "object" ? JSON.stringify(data.details, null, 2) : data.details}</span></AdminSectionItem>
             <AdminSectionItem title={`${t('Executed SQL')}`} isVisible={!!sqlQuery}>
               <IndentedContent>
-
-                <div className="relative text-sm text-gray-900 rounded-md p-4 shadow w-full overflow-x-auto"><pre className="whitespace-pre-wrap text-base leading-relaxed">{sqlQuery}</pre>
-                  {/* <CopyButton textToCopy={sqlQuery} /> */}
-                  <div className="absolute top-2 right-2"> {/* Adjust top value as needed */}
+                <div className="relative text-sm text-gray-900 rounded-md p-4 shadow w-full">
+                  <div className="overflow-x-auto max-h-96">
+                    <pre className="whitespace-pre text-base leading-relaxed min-w-0" style={{ minWidth: 'max-content' }}>
+                      {sqlQuery}
+                    </pre>
+                  </div>
+                  <div className="absolute top-2 right-2 mr-5">
                     <CopyButton textToCopy={sqlQuery} />
                   </div>
                 </div>
