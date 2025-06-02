@@ -253,7 +253,7 @@ useEffect(() => {
             <div className="absolute top-2 right-2 flex items-center">
               {copied ? (
                 <span className="text-green-600 text-xs font-semibold">
-                  Copied!
+                  {t('Copied!')}
                 </span>
               ) : (
                 <button

@@ -58,11 +58,12 @@ const JsonViewer = ({ data }) => {
       return <div className="pl-4 text-sm text-gray-800"><span className="text-gray-700">"{key}": </span><span>{JSON.stringify(value)}</span></div>;
     }
   };
-  if (data === undefined || data === null) return <div className="p-4 font-mono text-sm mt-2 group">No data to display.</div>;
+  if (data === undefined || data === null) return <div className="p-4 font-mono text-sm mt-2 group">{t('No data to display')}
+</div>;
   return (
     <div className="relative p-4 font-mono text-sm mt-2 group">
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer flex items-center z-10" onClick={handleCopy}>
-        <Copy size={14} className="text-gray-400 hover:text-black" />{copied && <span className="ml-1 text-xs text-green-600">Copied!</span>}
+        <Copy size={14} className="text-gray-400 hover:text-black" />{copied && <span className="ml-1 text-xs text-green-600">{t('Copied!')}</span>}
       </div>
       <div>
         <span className="cursor-pointer select-none text-gray-800 text-sm" onClick={() => toggleCollapse("__root")}>{collapsed["__root"] ? "▶ {" : "▼ {"}</span>
@@ -153,19 +154,19 @@ const TabsContent = ({
     };
     return (
       <button onClick={handleCopy} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 p-1 rounded hover:bg-gray-200 transition-colors z-10" title="Copy to clipboard">
-        <FiCopy size={14} />{copied && <span className="ml-1 text-xs text-green-600 absolute -top-5 right-0 bg-white p-1 rounded shadow">Copied!</span>}
+        <FiCopy size={14} />{copied && <span className="ml-1 text-xs text-green-600 absolute -top-5 right-0 bg-white p-1 rounded shadow">{t('Copied!')}</span>}
       </button>
     );
   };
 
   const MarkdownTable = ({ markdown }) => {
-    if (!markdown || typeof markdown !== "string") return <p className="text-sm text-gray-600 mt-2">No table data.</p>;
+    if (!markdown || typeof markdown !== "string") return <p className="text-sm text-gray-600 mt-2">{t('No table data')} </p>;
     const lines = markdown.split("\n").filter(line => line.includes("|"));
-    if (lines.length < 2) return <p className="text-sm text-gray-600 mt-2">No valid table data.</p>;
+    if (lines.length < 2) return <p className="text-sm text-gray-600 mt-2">{t('No valid table data')}</p>;
     const headers = lines[0].split("|").map(cell => cell.trim()).filter(Boolean);
     const dataLines = lines.slice(1).filter(line => !line.match(/^(\|\s*-+\s*)+\|?$/));
     const rowsData = dataLines.map(line => line.split("|").map(cell => cell.trim()).filter(Boolean));
-    if (headers.length === 0 && rowsData.length === 0) return <p className="text-sm text-gray-600 mt-2">Empty table.</p>;
+    if (headers.length === 0 && rowsData.length === 0) return <p className="text-sm text-gray-600 mt-2"> {t('Empty table')}</p>;
     return (
       <div className="overflow-x-auto mt-2 w-full"><table className="table-auto border border-collapse border-gray-300 w-full text-sm">
         <thead><tr className="bg-gray-100">{headers.map((h, i) => <th key={i} className="border border-gray-300 px-3 py-2 text-left font-medium text-gray-700">{h}</th>)}</tr></thead>
@@ -366,7 +367,7 @@ const TabsContent = ({
                 <div className="relative  text-sm text-gray-900 rounded-md p-4 shadow w-full overflow-x-auto"><pre className="whitespace-pre-wrap text-base leading-relaxed">{sqlQuery}</pre>
                   {/* <CopyButton textToCopy={sqlQuery} /> */}
 
-                  <div className="absolute top-2 right-2"> {/* Adjust top value as needed */}
+                  <div className="absolute top-2 right-2 mr-5"> {/* Adjust top value as needed */}
                     <CopyButton textToCopy={sqlQuery} />
                   </div>
                 </div>
